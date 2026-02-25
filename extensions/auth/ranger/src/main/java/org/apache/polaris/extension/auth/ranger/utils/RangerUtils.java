@@ -21,7 +21,10 @@ package org.apache.polaris.extension.auth.ranger.utils;
 
 import org.apache.polaris.core.entity.PolarisEntityType;
 import org.apache.polaris.core.entity.PolarisPrivilege;
+import org.apache.polaris.core.persistence.PolarisResolvedPathWrapper;
+import org.apache.polaris.core.persistence.ResolvedPolarisEntity;
 import org.apache.polaris.extension.auth.ranger.plugin.RangerPolarisPlugin;
+import org.apache.ranger.authz.util.RangerResourceNameParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,27 +35,34 @@ import java.util.List;
 import java.util.Properties;
 
 public class RangerUtils {
-
     private static final Logger LOG = LoggerFactory.getLogger(RangerUtils.class);
 
     public static Properties loadProperties(String resourcePath) {
         Properties prop = new Properties();
+
         if (resourcePath != null) {
             resourcePath = resourcePath.trim();
+
             if (!resourcePath.startsWith("/")) {
                 LOG.info("Adding / to the configFileName [{}]", resourcePath);
+
                 resourcePath = "/" + resourcePath;
             }
+
             try (InputStream in = RangerPolarisPlugin.class.getResourceAsStream(resourcePath)) {
                 prop.load(in);
+
                 List<String> emptyKeys = new ArrayList<>();
+
                 for (Object key : prop.keySet()) {
                     String keyStr = key.toString();
-                    String value = prop.getProperty(keyStr);
+                    String value  = prop.getProperty(keyStr);
+
                     if (value != null && value.startsWith("#")) {
                         emptyKeys.add(keyStr);
                     }
                 }
+
                 for (String k : emptyKeys) {
                     prop.replace(k, "") ;
                 }
@@ -60,6 +70,7 @@ public class RangerUtils {
                 LOG.warn("Unable to find the config file : [{}] - exception: [{}]", resourcePath, e);
             }
         }
+
         return prop ;
     }
 
@@ -184,4 +195,24 @@ public class RangerUtils {
         };
     }
 
+    public static String toResourcePath(PolarisResolvedPathWrapper resolvedPath) {
+        StringBuilder sb           = new StringBuilder();
+        String        resourceType = RangerUtils.toResourceType(resolvedPath.getResolvedLeafEntity().getEntity().getType());
+
+        sb.append(resourceType).append(RangerResourceNameParser.RRN_RESOURCE_TYPE_SEP) ;
+
+        boolean isFirst = true;
+
+        for (ResolvedPolarisEntity entity : resolvedPath.getResolvedFullPath()) {
+            if (!isFirst) {
+                sb.append(RangerResourceNameParser.DEFAULT_RRN_RESOURCE_SEP) ;
+            } else {
+                isFirst = false ;
+            }
+
+            sb.append(entity.getEntity().getName()) ;
+        }
+
+        return sb.toString() ;
+    }
 }

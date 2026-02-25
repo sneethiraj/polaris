@@ -24,5 +24,5 @@ import org.apache.polaris.immutables.PolarisImmutable;
 @PolarisImmutable
 @ConfigMapping(prefix = "polaris.authorization.ranger")
 public interface RangerPolarisAuthorizerConfig {
-     String configFileName() ;
+    String configFileName();
 }

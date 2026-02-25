@@ -19,35 +19,12 @@
 
 package org.apache.polaris.extension.auth.ranger.model;
 
-import org.apache.polaris.core.entity.PolarisEntity;
 import org.apache.polaris.core.persistence.PolarisResolvedPathWrapper;
-import org.apache.polaris.core.persistence.ResolvedPolarisEntity;
-import org.apache.polaris.extension.auth.ranger.plugin.RangerPolarisPlugin;
 import org.apache.polaris.extension.auth.ranger.utils.RangerUtils;
 import org.apache.ranger.authz.model.RangerResourceInfo;
-import org.apache.ranger.authz.util.RangerResourceNameParser;
 
 public class RangerPolarisResource extends RangerResourceInfo {
-
     public RangerPolarisResource(PolarisResolvedPathWrapper resourcePath) {
-        setName(RangerPolarisResource.getResourcePath(resourcePath));
+        setName(RangerUtils.toResourcePath(resourcePath));
     }
-
-    public static String getResourcePath(PolarisResolvedPathWrapper resolvedPath) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(RangerUtils.toResourceType(resolvedPath.getResolvedLeafEntity().getEntity().getType()))
-                .append(RangerResourceNameParser.RRN_RESOURCE_TYPE_SEP) ;
-        boolean isFirst = true ;
-        for (ResolvedPolarisEntity entity : resolvedPath.getResolvedFullPath()) {
-            if (!isFirst) {
-                sb.append(RangerResourceNameParser.DEFAULT_RRN_RESOURCE_SEP) ;
-            }
-            else {
-                isFirst = false ;
-            }
-            sb.append(entity.getEntity().getName()) ;
-        }
-        return sb.toString() ;
-    }
-
 }

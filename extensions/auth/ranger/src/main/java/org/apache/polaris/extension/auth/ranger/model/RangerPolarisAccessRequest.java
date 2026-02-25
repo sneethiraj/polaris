@@ -20,19 +20,15 @@
 package org.apache.polaris.extension.auth.ranger.model;
 
 import jakarta.annotation.Nonnull;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.polaris.core.auth.PolarisAuthorizableOperation;
 import org.apache.polaris.core.auth.PolarisPrincipal;
 import org.apache.polaris.core.persistence.PolarisResolvedPathWrapper;
-import org.apache.polaris.core.persistence.ResolvedPolarisEntity;
-import org.apache.polaris.extension.auth.ranger.RangerPolarisAuthorizer;
-import org.apache.polaris.extension.auth.ranger.plugin.RangerPolarisPlugin;
 import org.apache.polaris.extension.auth.ranger.utils.RangerUtils;
 import org.apache.ranger.authz.model.RangerAccessContext;
 import org.apache.ranger.authz.model.RangerAccessInfo;
 import org.apache.ranger.authz.model.RangerAuthzRequest;
-import org.apache.ranger.authz.model.RangerResourceInfo;
 import org.apache.ranger.authz.model.RangerUserInfo;
-import org.apache.ranger.authz.util.RangerResourceNameParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,34 +37,26 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RangerPolarisAccessRequest extends RangerAuthzRequest {
-
     private static final Logger LOG = LoggerFactory.getLogger(RangerPolarisAccessRequest.class);
 
     public RangerPolarisAccessRequest(
             @Nonnull PolarisPrincipal polarisPrincipal,
             @Nonnull PolarisResolvedPathWrapper target,
-            @Nonnull PolarisAuthorizableOperation authzOp) {
+            @Nonnull PolarisAuthorizableOperation authzOp,
+            @Nonnull String serviceType,
+            @Nonnull String serviceName) {
+        Set<String> permissions = authzOp.getPrivilegesOnTarget().stream().map(RangerUtils::toAccessType).collect(Collectors.toSet());
 
-        setUser(new RangerUserInfo(polarisPrincipal.getName(), Collections.emptyMap(),polarisPrincipal.getRoles(),null));
+        setUser(new RangerUserInfo(polarisPrincipal.getName(), Collections.emptyMap(), polarisPrincipal.getRoles(), null));
+        setAccess(new RangerAccessInfo(new RangerPolarisResource(target), authzOp.name(), permissions));
+        setContext(new RangerAccessContext(serviceType, serviceName));
 
-        RangerAccessInfo accessInfo = new RangerAccessInfo();
-        setAccess(accessInfo);
-        accessInfo.setAction(authzOp.name());
-        Set<String> permissionSet = authzOp.getPrivilegesOnTarget().stream()
-                .map(RangerUtils::toAccessType).collect(Collectors.toSet());
-        accessInfo.setPermissions(permissionSet);
-
-        RangerPolarisResource resource = new RangerPolarisResource(target) ;
-        accessInfo.setResource(resource) ;
-
-        LOG.info("user: {}, group: {}, permissions: {}, resource: {} ",
-                getUser().getName(),
-                String.join(",", getUser().getGroups()),
-                String.join(",", permissionSet),
-                resource.getName()) ;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("user: {}, group: {}, permissions: {}, resource: {} ",
+                    getUser().getName(),
+                    StringUtils.join(getUser().getGroups(), ","),
+                    StringUtils.join(permissions, ","),
+                    getAccess().getResource().getName());
+        }
     }
-
-
-
-
 }

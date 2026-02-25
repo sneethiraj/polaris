@@ -55,6 +55,4 @@ dependencies {
   runtimeOnly("org.apache.ranger:ranger-plugins-cred:2.8.0-SNAPSHOT")
   runtimeOnly("org.apache.ranger:ranger-audit-dest-solr:2.8.0-SNAPSHOT")
   runtimeOnly("org.apache.zookeeper:zookeeper:3.8.4")
-
-
 }

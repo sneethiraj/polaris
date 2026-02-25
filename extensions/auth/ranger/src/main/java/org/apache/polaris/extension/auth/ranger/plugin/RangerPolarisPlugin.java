@@ -30,23 +30,16 @@ import org.apache.polaris.core.config.RealmConfig;
 import org.apache.polaris.core.entity.PolarisBaseEntity;
 import org.apache.polaris.core.entity.PolarisEntityConstants;
 import org.apache.polaris.core.entity.PolarisEntityCore;
-import org.apache.polaris.core.entity.PolarisPrivilege;
 import org.apache.polaris.core.persistence.PolarisResolvedPathWrapper;
 import org.apache.polaris.extension.auth.ranger.RangerPolarisAuthorizerConfig;
 import org.apache.polaris.extension.auth.ranger.model.RangerPolarisAccessRequest;
-import org.apache.polaris.extension.auth.ranger.model.RangerPolarisResource;
 import org.apache.polaris.extension.auth.ranger.utils.RangerUtils;
 import org.apache.ranger.authz.api.RangerAuthzException;
 import org.apache.ranger.authz.embedded.RangerEmbeddedAuthorizer;
-import org.apache.ranger.authz.model.RangerAccessContext;
 import org.apache.ranger.authz.model.RangerAuthzResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -57,29 +50,27 @@ import static org.apache.polaris.core.entity.PolarisEntityConstants.getRootPrinc
 public class RangerPolarisPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(RangerPolarisPlugin.class);
 
-    public static final String SERVICE_TYPE = "polaris";
+    public static final String SERVICE_TYPE          = "polaris";
     public static final String SERVICE_NAME_PROPERTY = "ranger.plugin.polaris.service.name";
 
-    private static final String OPERATION_NOT_ALLOWED_FOR_USER_ERROR = "Principal '%s' is not authorized for op %s due to PRINCIPAL_CREDENTIAL_ROTATION_REQUIRED_STATE" ;
-    private static final String ROOT_PRINCIPLE_NEEDED_ERROR = "Principal '%s' is not authorized for op %s as Only root principal can perform this operation" ;
-    private static final String RANGER_AUTH_FAILED_ERROR  = "Principal '%s' with activated PrincipalRoles '%s' and activated grants via '%s' is not authorized for op '%s'" ;
+    private static final String OPERATION_NOT_ALLOWED_FOR_USER_ERROR = "Principal '%s' is not authorized for op %s due to PRINCIPAL_CREDENTIAL_ROTATION_REQUIRED_STATE";
+    private static final String ROOT_PRINCIPLE_NEEDED_ERROR          = "Principal '%s' is not authorized for op %s as Only root principal can perform this operation";
+    private static final String RANGER_AUTH_FAILED_ERROR             = "Principal '%s' with activated PrincipalRoles '%s' and activated grants via '%s' is not authorized for op '%s'";
 
-
-    private final RangerEmbeddedAuthorizer authorizer ;
-    private final boolean enforceCredentialRotationRequiredState;
-    public String serviceName ;
+    private final boolean                  enforceCredentialRotationRequiredState;
+    private final RangerEmbeddedAuthorizer authorizer;
+    private final String                   serviceName;
 
     public RangerPolarisPlugin(RangerPolarisAuthorizerConfig config, RealmConfig realmConfig) {
-        this.enforceCredentialRotationRequiredState = realmConfig.getConfig(
-                        FeatureConfiguration.ENFORCE_PRINCIPAL_CREDENTIAL_ROTATION_REQUIRED_CHECKING);
-        Properties rangerConfigProp = RangerUtils.loadProperties(config.configFileName()) ;
-        authorizer = new RangerEmbeddedAuthorizer(rangerConfigProp) ;
-        serviceName = rangerConfigProp.getProperty(SERVICE_NAME_PROPERTY) ;
+        Properties rangerProp = RangerUtils.loadProperties(config.configFileName());
+
+        enforceCredentialRotationRequiredState = realmConfig.getConfig(FeatureConfiguration.ENFORCE_PRINCIPAL_CREDENTIAL_ROTATION_REQUIRED_CHECKING);
+        authorizer                             = new RangerEmbeddedAuthorizer(rangerProp);
+        serviceName                            = rangerProp.getProperty(SERVICE_NAME_PROPERTY);
     }
 
     public void init() throws RangerAuthzException {
         authorizer.init();
-
     }
 
     public void authorizeOrThrow(
@@ -90,12 +81,14 @@ public class RangerPolarisPlugin {
             @Nullable List<PolarisResolvedPathWrapper> secondaries) {
         try {
             if (!isOperationAllowedForUser(polarisPrincipal, authzOp) ) {
-                throw new ForbiddenException(OPERATION_NOT_ALLOWED_FOR_USER_ERROR, polarisPrincipal.getName(), authzOp.name()) ;
-                //TODO: enable ranger audit from here to ensure that the request denied captured.
+                // TODO: enable ranger audit from here to ensure that the request denied captured.
+
+                throw new ForbiddenException(OPERATION_NOT_ALLOWED_FOR_USER_ERROR, polarisPrincipal.getName(), authzOp.name());
             } else if (authzOp == PolarisAuthorizableOperation.RESET_CREDENTIALS) {
-                boolean isRootPrincipal = getRootPrincipalName().equals(polarisPrincipal.getName()) ;
-               //TODO: enable ranger audit from here to ensure that the request denied captured.
+                boolean isRootPrincipal = getRootPrincipalName().equals(polarisPrincipal.getName());
+
                 if (!isRootPrincipal) {
+                    // TODO: enable ranger audit from here to ensure that the request denied captured.
                     throw new ForbiddenException(ROOT_PRINCIPLE_NEEDED_ERROR, polarisPrincipal.getName(), authzOp.name());
                 }
             } else if (!isAccessAuthorized(polarisPrincipal, activatedEntities, authzOp, targets, secondaries)) {
@@ -105,9 +98,9 @@ public class RangerPolarisPlugin {
                         activatedEntities.stream().map(PolarisEntityCore::getName).collect(Collectors.toSet()),
                         authzOp.name());
             }
-        }
-        catch(IllegalStateException ise) {
-            LOG.info("Failed to authorize principal {} for op {}. Throwing exception. {}", polarisPrincipal, authzOp, ise);
+        } catch(IllegalStateException ise) {
+            LOG.error("Failed to authorize principal {} for op {}. Throwing exception. {}", polarisPrincipal, authzOp, ise);
+
             throw ise;
         }
     }
@@ -118,68 +111,56 @@ public class RangerPolarisPlugin {
             @Nonnull PolarisAuthorizableOperation authzOp,
             @Nullable List<PolarisResolvedPathWrapper> targets,
             @Nullable List<PolarisResolvedPathWrapper> secondaries) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("isAuthorized: users={}, groups={}", polarisPrincipal.getName(), String.join(",", polarisPrincipal.getRoles()));
 
-        if (LOG.isInfoEnabled()) {
-
-            LOG.info("isAuthorized: users={}, groups={}", polarisPrincipal.getName(), String.join(",", polarisPrincipal.getRoles()));
-
-            LOG.info("isAuthorized: activatedEntities={}",
+            LOG.debug("isAuthorized: activatedEntities={}",
                 activatedEntities.stream()
                     .map(e -> RangerUtils.toResourceType(e.getType()) + ":" + e.getName())
-                    .collect(Collectors.joining(","))) ;
+                    .collect(Collectors.joining(",")));
 
-            LOG.info("isAuthorized: authzOp={}", authzOp.name()) ;
+            LOG.debug("isAuthorized: authzOp={}", authzOp.name());
 
-            LOG.info("isAuthorized: permissions={}",
+            LOG.debug("isAuthorized: permissions={}",
                 authzOp.getPrivilegesOnTarget().stream()
                     .map(RangerUtils::toAccessType)
-                    .collect(Collectors.joining(","))) ;
+                    .collect(Collectors.joining(",")));
 
             if (targets != null) {
-                LOG.info("isAuthorized: targets={}",
+                LOG.debug("isAuthorized: targets={}",
                         targets.stream()
-                                .map(RangerPolarisResource::getResourcePath)
+                                .map(RangerUtils::toResourcePath)
                                 .collect(Collectors.joining(",")));
             }
 
             if (secondaries != null) {
-                LOG.info("isAuthorized: secondaries={}",
+                LOG.debug("isAuthorized: secondaries={}",
                         secondaries.stream()
-                                .map(RangerPolarisResource::getResourcePath)
+                                .map(RangerUtils::toResourcePath)
                                 .collect(Collectors.joining(",")));
             }
        }
 
         return validateTargets(polarisPrincipal, authzOp, targets);
-
     }
 
     private boolean validateTargets(@Nonnull PolarisPrincipal polarisPrincipal,
                                     @Nonnull PolarisAuthorizableOperation authzOp,
                                     @Nullable List<PolarisResolvedPathWrapper> targets) {
+        boolean accessGranted = true;
 
-        boolean accessGranted = false ;
-
-        for (PolarisPrivilege privilegeOnTarget : authzOp.getPrivilegesOnTarget()) {
+        if (! authzOp.getPrivilegesOnTarget().isEmpty()) {
             // If any privileges are required on target, the target must be non-null.
-            Preconditions.checkState(
-                    targets != null,
-                    "Got null target when authorizing authzOp %s for privilege %s", authzOp, privilegeOnTarget);
+            Preconditions.checkState(targets != null, "Got null target when authorizing authzOp %s for privilege %s", authzOp, authzOp.getPrivilegesOnTarget());
         }
 
         if (targets != null) {
-            List<String> errors = new ArrayList<>();
             for (PolarisResolvedPathWrapper target : targets) {
                 if (!isTargetAuthorized(polarisPrincipal, authzOp, target)) {
-                    errors.add(String.format("Failed to satisfy privilege %s for principalName %s on resolvedPath %s", authzOp.name(), polarisPrincipal.getName(), target));
+                    accessGranted = false;
+
+                    LOG.debug("Failed to satisfy privilege {} for principalName {} on resolvedPath {}", authzOp.name(), polarisPrincipal.getName(), target);
                 }
-            }
-            if (!errors.isEmpty()) {
-                String msg = String.join(",", errors);
-                LOG.error(msg);
-            }
-            else {
-                accessGranted = true ;
             }
         }
 
@@ -195,32 +176,25 @@ public class RangerPolarisPlugin {
      * privilege, choosing whether to vend credentials) or throwing relevant Unauthorized
      * errors/exceptions.
      */
-    public boolean isTargetAuthorized(
+    private boolean isTargetAuthorized(
             @Nonnull PolarisPrincipal polarisPrincipal,
             @Nonnull PolarisAuthorizableOperation authzOp,
             PolarisResolvedPathWrapper resolvedPath) {
-
-        RangerPolarisAccessRequest request = new RangerPolarisAccessRequest(polarisPrincipal,resolvedPath, authzOp) ;
-        RangerAccessContext context = new RangerAccessContext();
-        context.setServiceName(SERVICE_TYPE);
-        context.setServiceName(serviceName);
-        request.setContext(context) ;
-
         boolean accessAllowed = false;
+
         try {
+            RangerPolarisAccessRequest request = new RangerPolarisAccessRequest(polarisPrincipal,resolvedPath, authzOp, SERVICE_TYPE, serviceName);
+
             RangerAuthzResult result = authorizer.authorize(request);
-            accessAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals( result.getDecision()) ;
+
+            accessAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals(result.getDecision()) ;
         } catch (RangerAuthzException e) {
-            LOG.info("Ranger authorization failed for principal {} on resolvedPath {}. Exception: {}", polarisPrincipal, resolvedPath, e);
+            LOG.error("Ranger authorization failed for principal {} on resolvedPath {}", polarisPrincipal, resolvedPath, e);
         }
 
-        String permissions = authzOp.getPrivilegesOnTarget().stream()
-                .map(RangerUtils::toAccessType).collect(Collectors.joining(",")) ;
-
-        LOG.info("RangerPolicyEval: result = {}", accessAllowed);
+        LOG.debug("RangerPolicyEval: result = {}", accessAllowed);
 
         return accessAllowed ;
-
     }
 
     private boolean isOperationAllowedForUser(PolarisPrincipal polarisPrincipal,PolarisAuthorizableOperation authzOp) {
@@ -228,6 +202,4 @@ public class RangerPolarisPlugin {
                    && polarisPrincipal.getProperties().containsKey(PolarisEntityConstants.PRINCIPAL_CREDENTIAL_ROTATION_REQUIRED_STATE)
                    && authzOp != PolarisAuthorizableOperation.ROTATE_CREDENTIALS)) ;
     }
-
-
 }

@@ -44,62 +44,54 @@ import java.util.Set;
  * which translates into a cross-catalog permission.
  */
 public class RangerPolarisAuthorizer implements PolarisAuthorizer {
-  private static final Logger LOG = LoggerFactory.getLogger(RangerPolarisAuthorizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RangerPolarisAuthorizer.class);
 
-  private final RangerPolarisAuthorizerConfig config;
-  private final RealmConfig realmConfig;
-  private final RangerPolarisPlugin plugin ;
+    private final RangerPolarisAuthorizerConfig config;
+    private final RealmConfig                   realmConfig;
+    private final RangerPolarisPlugin           plugin;
 
-  public RangerPolarisAuthorizer(RangerPolarisAuthorizerConfig config, RealmConfig realmConfig) {
-    LOG.info("Initializing RangerPolarisAuthorizer");
-    this.config = config;
-    this.realmConfig = realmConfig;
-    plugin = new RangerPolarisPlugin(config,realmConfig);
-    try {
-      plugin.init();
+    public RangerPolarisAuthorizer(RangerPolarisAuthorizerConfig config, RealmConfig realmConfig) {
+        LOG.info("Initializing RangerPolarisAuthorizer");
+
+        this.config      = config;
+        this.realmConfig = realmConfig;
+        this.plugin      = new RangerPolarisPlugin(config,realmConfig);
+
+        try {
+            plugin.init();
+        } catch (RangerAuthzException t) {
+            LOG.error("Failed to initialize RangerPolarisAuthorizer", t);
+            throw new RuntimeException(t);
+        }
+
+        LOG.info("RangerPolarisAuthorizer initialized successfully");
     }
-    catch (RangerAuthzException t) {
-      LOG.error("Failed to initialize RangerPolarisAuthorizer", t);
-      throw new RuntimeException(t);
+
+    public RangerPolarisAuthorizerConfig getConfig() {
+        return config;
     }
-    LOG.info("RangerPolarisAuthorizer initialized successfully");
-  }
 
-  public RangerPolarisAuthorizerConfig getConfig() {
-    return config;
-  }
+    public RealmConfig getRealmConfig() {
+        return realmConfig;
+    }
 
-  public RealmConfig getRealmConfig() {
-    return realmConfig;
-  }
+    @Override
+    public void authorizeOrThrow(
+            @Nonnull PolarisPrincipal polarisPrincipal,
+            @Nonnull Set<PolarisBaseEntity> activatedEntities,
+            @Nonnull PolarisAuthorizableOperation authzOp,
+            @Nullable PolarisResolvedPathWrapper target,
+            @Nullable PolarisResolvedPathWrapper secondary) {
+        plugin.authorizeOrThrow(polarisPrincipal, activatedEntities, authzOp, target == null ? null : List.of(target), secondary == null ? null : List.of(secondary));
+    }
 
-  @Override
-  public void authorizeOrThrow(
-      @Nonnull PolarisPrincipal polarisPrincipal,
-      @Nonnull Set<PolarisBaseEntity> activatedEntities,
-      @Nonnull PolarisAuthorizableOperation authzOp,
-      @Nullable PolarisResolvedPathWrapper target,
-      @Nullable PolarisResolvedPathWrapper secondary) {
-    plugin.authorizeOrThrow(
-        polarisPrincipal,
-        activatedEntities,
-        authzOp,
-        target == null ? null : List.of(target),
-        secondary == null ? null : List.of(secondary));
-  }
-
-  @Override
-  public void authorizeOrThrow(
-      @Nonnull PolarisPrincipal polarisPrincipal,
-      @Nonnull Set<PolarisBaseEntity> activatedEntities,
-      @Nonnull PolarisAuthorizableOperation authzOp,
-      @Nullable List<PolarisResolvedPathWrapper> targets,
-      @Nullable List<PolarisResolvedPathWrapper> secondaries) {
-    plugin.authorizeOrThrow(
-            polarisPrincipal,
-            activatedEntities,
-            authzOp,
-            targets,
-            secondaries);
-  }
+    @Override
+    public void authorizeOrThrow(
+            @Nonnull PolarisPrincipal polarisPrincipal,
+            @Nonnull Set<PolarisBaseEntity> activatedEntities,
+            @Nonnull PolarisAuthorizableOperation authzOp,
+            @Nullable List<PolarisResolvedPathWrapper> targets,
+            @Nullable List<PolarisResolvedPathWrapper> secondaries) {
+        plugin.authorizeOrThrow(polarisPrincipal, activatedEntities, authzOp, targets, secondaries);
+    }
 }
