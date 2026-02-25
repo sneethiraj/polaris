@@ -58,7 +58,7 @@ class RangerPolarisAuthorizerFactory implements PolarisAuthorizerFactory {
         try {
           return new RangerPolarisAuthorizer(config, realmConfig);
         } catch (Throwable t) {
-            LOG.error("Failed to create RangerPolarisAuthorizer", new Exception(t));
+            LOG.error("Failed to create RangerPolarisAuthorizer", t);
         }
 
         return null;

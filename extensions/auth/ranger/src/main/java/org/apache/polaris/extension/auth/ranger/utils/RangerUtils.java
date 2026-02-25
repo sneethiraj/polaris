@@ -19,20 +19,30 @@
 
 package org.apache.polaris.extension.auth.ranger.utils;
 
+import jakarta.annotation.Nonnull;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.polaris.core.auth.PolarisAuthorizableOperation;
+import org.apache.polaris.core.auth.PolarisPrincipal;
 import org.apache.polaris.core.entity.PolarisEntityType;
 import org.apache.polaris.core.entity.PolarisPrivilege;
 import org.apache.polaris.core.persistence.PolarisResolvedPathWrapper;
 import org.apache.polaris.core.persistence.ResolvedPolarisEntity;
-import org.apache.polaris.extension.auth.ranger.plugin.RangerPolarisPlugin;
+import org.apache.polaris.extension.auth.ranger.RangerPolarisAuthorizer;
+import org.apache.ranger.authz.model.RangerAccessContext;
+import org.apache.ranger.authz.model.RangerAccessInfo;
+import org.apache.ranger.authz.model.RangerAuthzRequest;
+import org.apache.ranger.authz.model.RangerResourceInfo;
+import org.apache.ranger.authz.model.RangerUserInfo;
 import org.apache.ranger.authz.util.RangerResourceNameParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RangerUtils {
     private static final Logger LOG = LoggerFactory.getLogger(RangerUtils.class);
@@ -49,25 +59,10 @@ public class RangerUtils {
                 resourcePath = "/" + resourcePath;
             }
 
-            try (InputStream in = RangerPolarisPlugin.class.getResourceAsStream(resourcePath)) {
+            try (InputStream in = RangerPolarisAuthorizer.class.getResourceAsStream(resourcePath)) {
                 prop.load(in);
-
-                List<String> emptyKeys = new ArrayList<>();
-
-                for (Object key : prop.keySet()) {
-                    String keyStr = key.toString();
-                    String value  = prop.getProperty(keyStr);
-
-                    if (value != null && value.startsWith("#")) {
-                        emptyKeys.add(keyStr);
-                    }
-                }
-
-                for (String k : emptyKeys) {
-                    prop.replace(k, "") ;
-                }
             } catch(IOException e){
-                LOG.warn("Unable to find the config file : [{}] - exception: [{}]", resourcePath, e);
+                LOG.warn("Unable to load config file: [{}]", resourcePath, e);
             }
         }
 
@@ -214,5 +209,33 @@ public class RangerUtils {
         }
 
         return sb.toString() ;
+    }
+
+    public static RangerResourceInfo toResourceInfo(PolarisResolvedPathWrapper resourcePath) {
+        RangerResourceInfo ret = new RangerResourceInfo();
+
+        ret.setName(toResourcePath(resourcePath));
+
+        return ret;
+    }
+
+    public static RangerAuthzRequest toAccessRequest(
+            @Nonnull PolarisPrincipal polarisPrincipal,
+            @Nonnull PolarisResolvedPathWrapper target,
+            @Nonnull PolarisAuthorizableOperation authzOp,
+            @Nonnull String serviceType,
+            @Nonnull String serviceName) {
+        Set<String> permissions = authzOp.getPrivilegesOnTarget().stream().map(RangerUtils::toAccessType).collect(Collectors.toSet());
+
+        RangerUserInfo      user     = new RangerUserInfo(polarisPrincipal.getName(), Collections.emptyMap(), polarisPrincipal.getRoles(), null);
+        RangerAccessInfo    access   = new RangerAccessInfo(RangerUtils.toResourceInfo(target), authzOp.name(), permissions);
+        RangerAccessContext context = new RangerAccessContext(serviceType, serviceName);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("user: {}, group: {}, permissions: {}, resource: {} ",
+                    user.getName(), StringUtils.join(user.getGroups(), ","), StringUtils.join(permissions, ","), access.getResource().getName());
+        }
+
+        return new RangerAuthzRequest(user, access, context);
     }
 }
