@@ -172,55 +172,70 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
             }
         }
 
-        return validateTargets(polarisPrincipal, authzOp, targets);
+        return isAccessAuthorized(polarisPrincipal, authzOp, targets, secondaries);
     }
 
-    private boolean validateTargets(
-            @Nonnull PolarisPrincipal polarisPrincipal,
+    private boolean isAccessAuthorized(
+            @Nonnull PolarisPrincipal principal,
             @Nonnull PolarisAuthorizableOperation authzOp,
-            @Nullable List<PolarisResolvedPathWrapper> targets) {
+            @Nullable List<PolarisResolvedPathWrapper> targets,
+            @Nullable List<PolarisResolvedPathWrapper> secondaries) {
         boolean accessGranted = true;
 
-        if (! authzOp.getPrivilegesOnTarget().isEmpty()) {
-            // If any privileges are required on target, the target must be non-null.
-            Preconditions.checkState(targets != null, "Got null target when authorizing authzOp %s for privilege %s", authzOp, authzOp.getPrivilegesOnTarget());
-        }
-
-        if (targets != null) {
+        if (targets != null && !targets.isEmpty()) {
             for (PolarisResolvedPathWrapper target : targets) {
-                if (!isTargetAuthorized(polarisPrincipal, authzOp, target)) {
+                if (!isTargetAuthorized(principal, authzOp, target)) {
                     accessGranted = false;
 
-                    LOG.debug("Failed to satisfy privilege {} for principalName {} on resolvedPath {}", authzOp.name(), polarisPrincipal.getName(), target);
+                    LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}", authzOp.name(), principal.getName(), target);
                 }
             }
+        } else {
+            Preconditions.checkState(authzOp.getPrivilegesOnTarget().isEmpty(), "No target provided to authorize %s for privilege %s", authzOp, authzOp.getPrivilegesOnTarget());
+        }
+
+        if (secondaries != null && !secondaries.isEmpty()) {
+            for (PolarisResolvedPathWrapper secondary : secondaries) {
+                if (!isSecondaryAuthorized(principal, authzOp, secondary)) {
+                    accessGranted = false;
+
+                    LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}", authzOp.name(), principal.getName(), secondary);
+                }
+            }
+        } else {
+            Preconditions.checkState(authzOp.getPrivilegesOnSecondary().isEmpty(), "No secondary provided to authorize %s for privilege %s", authzOp, authzOp.getPrivilegesOnSecondary());
         }
 
         return accessGranted ;
     }
 
-    /**
-     * Checks whether the resolvedPrincipal in the {@code resolved} resolvedPath has role-expanded
-     * permissions matching {@code privilege} on any entity in the resolvedPath of the resolvedPath.
-     *
-     * <p>The caller is responsible for translating these checks into either behavioral actions (e.g.
-     * returning 404 instead of 403, checking other root privileges that supercede the checked
-     * privilege, choosing whether to vend credentials) or throwing relevant Unauthorized
-     * errors/exceptions.
-     */
-    private boolean isTargetAuthorized(
-            @Nonnull PolarisPrincipal polarisPrincipal,
-            @Nonnull PolarisAuthorizableOperation authzOp,
-            PolarisResolvedPathWrapper resolvedPath) {
+    private boolean isTargetAuthorized(@Nonnull PolarisPrincipal principal, @Nonnull PolarisAuthorizableOperation authzOp, PolarisResolvedPathWrapper entity) {
         boolean accessAllowed = false;
 
         try {
-            RangerAuthzRequest request = RangerUtils.toAccessRequest(polarisPrincipal,resolvedPath, authzOp, SERVICE_TYPE, serviceName);
+            RangerAuthzRequest request = RangerUtils.toAccessRequest(principal,entity, authzOp, RangerUtils.toPermissions(authzOp.getPrivilegesOnTarget()), SERVICE_TYPE, serviceName);
             RangerAuthzResult  result  = authorizer.authorize(request);
 
             accessAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals(result.getDecision()) ;
         } catch (RangerAuthzException e) {
-            LOG.error("Ranger authorization failed for principal {} on resolvedPath {}", polarisPrincipal, resolvedPath, e);
+            LOG.error("Ranger authorization failed for principal {} on entity {}", principal, entity, e);
+        }
+
+        LOG.debug("RangerPolicyEval: result = {}", accessAllowed);
+
+        return accessAllowed ;
+    }
+
+    private boolean isSecondaryAuthorized(@Nonnull PolarisPrincipal principal, @Nonnull PolarisAuthorizableOperation authzOp, PolarisResolvedPathWrapper entity) {
+        boolean accessAllowed = false;
+
+        try {
+            RangerAuthzRequest request = RangerUtils.toAccessRequest(principal,entity, authzOp, RangerUtils.toPermissions(authzOp.getPrivilegesOnSecondary()), SERVICE_TYPE, serviceName);
+            RangerAuthzResult  result  = authorizer.authorize(request);
+
+            accessAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals(result.getDecision()) ;
+        } catch (RangerAuthzException e) {
+            LOG.error("Ranger authorization failed for principal {} on entity {}", principal, entity, e);
         }
 
         LOG.debug("RangerPolicyEval: result = {}", accessAllowed);

@@ -23,7 +23,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.polaris.core.auth.PolarisAuthorizer;
 import org.apache.polaris.core.auth.PolarisAuthorizerFactory;
 import org.apache.polaris.core.config.RealmConfig;
 import org.slf4j.Logger;
@@ -31,13 +30,13 @@ import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 @Identifier("ranger")
-class RangerPolarisAuthorizerFactory implements PolarisAuthorizerFactory {
+public class RangerPolarisAuthorizerFactory implements PolarisAuthorizerFactory {
     private static final Logger LOG = LoggerFactory.getLogger(RangerPolarisAuthorizerFactory.class);
 
     private final RangerPolarisAuthorizerConfig config;
 
     @Inject
-    private RangerPolarisAuthorizerFactory(RangerPolarisAuthorizerConfig config) {
+    RangerPolarisAuthorizerFactory(RangerPolarisAuthorizerConfig config) {
         this.config = config;
 
         LOG.debug("RangerPolarisAuthorizerFactory has been activated.");
@@ -52,7 +51,7 @@ class RangerPolarisAuthorizerFactory implements PolarisAuthorizerFactory {
     }
 
     @Override
-    public PolarisAuthorizer create(RealmConfig realmConfig) {
+    public RangerPolarisAuthorizer create(RealmConfig realmConfig) {
         LOG.debug("Creating RangerPolarisAuthorizer");
 
         try {

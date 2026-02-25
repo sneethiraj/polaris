@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -219,16 +220,19 @@ public class RangerUtils {
         return ret;
     }
 
+    public static Set<String> toPermissions(EnumSet<PolarisPrivilege> privileges) {
+        return privileges.stream().map(RangerUtils::toAccessType).collect(Collectors.toSet());
+    }
+
     public static RangerAuthzRequest toAccessRequest(
             @Nonnull PolarisPrincipal polarisPrincipal,
-            @Nonnull PolarisResolvedPathWrapper target,
+            @Nonnull PolarisResolvedPathWrapper entity,
             @Nonnull PolarisAuthorizableOperation authzOp,
+            @Nonnull Set<String> permissions,
             @Nonnull String serviceType,
             @Nonnull String serviceName) {
-        Set<String> permissions = authzOp.getPrivilegesOnTarget().stream().map(RangerUtils::toAccessType).collect(Collectors.toSet());
-
         RangerUserInfo      user     = new RangerUserInfo(polarisPrincipal.getName(), Collections.emptyMap(), polarisPrincipal.getRoles(), null);
-        RangerAccessInfo    access   = new RangerAccessInfo(RangerUtils.toResourceInfo(target), authzOp.name(), permissions);
+        RangerAccessInfo    access   = new RangerAccessInfo(RangerUtils.toResourceInfo(entity), authzOp.name(), permissions);
         RangerAccessContext context = new RangerAccessContext(serviceType, serviceName);
 
         if (LOG.isDebugEnabled()) {
