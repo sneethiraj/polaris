@@ -1,0 +1,8 @@
+{
+  "tests": [
+    {
+      "request": { "authzOp": "CREATE_NAMESPACE", "principal": { "name": "admin1" }, "target": "ROOT:root_container;CATALOG:catalog1;NAMESPACE:namespace1" },
+      "result":  { "isAllowed": true }
+    },
+  ]
+}

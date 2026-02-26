@@ -295,9 +295,9 @@
     {
       "id": 5, "name": "namespace:root_container/catalog1/namespace1",
       "resources": {
-        "root":       { "values": [ "root_container" ] },
-        "catalog":    { "values": [ "catalog1" ] },
-        "namespace1": { "values": [ "namespace1" ] }
+        "root":      { "values": [ "root_container" ] },
+        "catalog":   { "values": [ "catalog1" ] },
+        "namespace": { "values": [ "namespace1" ] }
       },
       "policyItems": [
         {
@@ -313,14 +313,19 @@
             { "type":  "namespace-policy-attach" },
             { "type":  "namespace-policy-detach" },
             { "type":  "table-create" },
+            { "type":  "table-drop" },
             { "type":  "table-list" },
+            { "type":  "table-data-write" },
+            { "type":  "table-properties-write" },
             { "type":  "view-create" },
+            { "type":  "view-drop" },
             { "type":  "view-list" },
             { "type":  "policy-create" },
             { "type":  "policy-list" },
             { "type": "catalog-role-grants-for-grantee-manage" }
           ],
-          "users": [ "admin1" ] }
+          "users": [ "admin1" ]
+        }
       ]
     },
     {

@@ -86,6 +86,11 @@ public class TestRangerPolarisAuthorizer {
         runTests(authorizer, "/authz_tests/tests_authz_principal_role.json");
     }
 
+    @Test
+    public void testAuthzNamespace() {
+        runTests(authorizer, "/authz_tests/tests_authz_namespace.json");
+    }
+
     private void runTests(PolarisAuthorizer authorizer, String testFilename) {
         InputStream       inStream = this.getClass().getResourceAsStream(testFilename);
         InputStreamReader reader   = new InputStreamReader(inStream, UTF_8);
@@ -96,9 +101,9 @@ public class TestRangerPolarisAuthorizer {
             try {
                 authorizer.authorizeOrThrow(test.request.principal, Collections.emptySet(), test.request.authzOp, test.request.target, test.request.secondary);
 
-                assertEquals(Boolean.TRUE, test.result.isAllowed, () -> test.request.principal + " performed " + test.request.authzOp  + " on (target: " + test.request.target + ", secondary: " + test.request.secondary + ")");
+                assertEquals(test.result.isAllowed, Boolean.TRUE, () -> test.request.principal + " performed " + test.request.authzOp  + " on (target: " + test.request.target + ", secondary: " + test.request.secondary + ")");
             } catch (Throwable t) {
-                assertEquals(Boolean.FALSE, test.result.isAllowed, () -> test.request.principal + " performed " + test.request.authzOp  + " on (target: " + test.request.target + ", secondary: " + test.request.secondary + ")");
+                assertEquals(test.result.isAllowed, Boolean.FALSE, () -> test.request.principal + " performed " + test.request.authzOp  + " on (target: " + test.request.target + ", secondary: " + test.request.secondary + ")");
             }
         }
     }
