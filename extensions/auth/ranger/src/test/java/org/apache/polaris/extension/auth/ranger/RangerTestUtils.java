@@ -49,17 +49,17 @@ public class RangerTestUtils {
 
             @Override
             public <T> T getConfig(PolarisConfiguration<T> config) {
-                return null;
+                return config.defaultValue();
             }
 
             @Override
             public <T> T getConfig(PolarisConfiguration<T> config, CatalogEntity catalogEntity) {
-                return null;
+                return config.defaultValue();
             }
 
             @Override
             public <T> T getConfig(PolarisConfiguration<T> config, Map<String, String> catalogProperties) {
-                return null;
+                return config.defaultValue();
             }
         };
     }

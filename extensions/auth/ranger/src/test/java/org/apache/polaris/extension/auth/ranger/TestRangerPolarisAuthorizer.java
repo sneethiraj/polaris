@@ -77,6 +77,11 @@ public class TestRangerPolarisAuthorizer {
         runTests(authorizer, "/authz_tests/tests_authz_catalog.json");
     }
 
+    @Test
+    public void testAuthzPrincipal() {
+        runTests(authorizer, "/authz_tests/tests_authz_principal.json");
+    }
+
     private void runTests(PolarisAuthorizer authorizer, String testFilename) {
         InputStream       inStream = this.getClass().getResourceAsStream(testFilename);
         InputStreamReader reader   = new InputStreamReader(inStream, UTF_8);

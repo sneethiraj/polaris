@@ -202,13 +202,13 @@
       "policyItems": [
         {
           "accesses": [
+            { "type": "service-access-manage" },
             { "type": "catalog-create" },
             { "type": "catalog-list" },
             { "type": "principal-create" },
             { "type": "principal-list" },
             { "type": "principal-role-create" },
-            { "type": "principal-role-list" },
-            { "type": "service-access-manage" }
+            { "type": "principal-role-list" }
           ],
           "users": [ "admin1" ]
         },
@@ -222,18 +222,7 @@
       ]
     },
     {
-      "id": 2, "name": "principal-role:root_container/principal_role1",
-      "resources": { "root": { "values": [ "root_container" ] }, "principal-role": { "values": [ "principal_role1" ] } },
-      "policyItems": [
-        {
-          "accesses": [
-            { "type": "principal-role-grants-for-grantee-manage" }
-          ],
-          "users": [ "admin1" ] }
-      ]
-    },
-    {
-      "id": 3, "name": "catalog:root_container/catalog1", "version": 1,
+      "id": 2, "name": "catalog:root_container/catalog1", "version": 1,
       "resources": {
         "root":    { "values": [ "root_container" ] },
         "catalog": { "values": [ "catalog1" ] }
@@ -241,11 +230,15 @@
       "policyItems": [
         {
           "accesses": [
+            { "type": "catalog-access-manage" },
             { "type": "catalog-drop" },
             { "type": "catalog-properties-read" },
             { "type": "catalog-properties-write" },
-            { "type": "catalog-grants-manage" },
+            { "type": "catalog-metadata-full" },
+            { "type": "catalog-metadata-manage" },
+            { "type": "catalog-content-manage" },
             { "type": "catalog-grants-list" },
+            { "type": "catalog-grants-manage" },
             { "type": "catalog-role-create" },
             { "type": "catalog-role-list" },
             { "type": "catalog-policy-attach" },
@@ -255,18 +248,135 @@
       ]
     },
     {
-      "id": 4, "name": "catalog-role:root_container/catalog1/role1", "version": 1,
+      "id": 3, "name": "principal:root_container/principal1", "version": 1,
+      "resources": {
+        "root":      { "values": [ "root_container" ] },
+        "principal": { "values": [ "principal1" ] }
+      },
+      "policyItems": [
+        {
+          "accesses": [
+            { "type": "principal-grants-manage" },
+            { "type": "principal-grants-for-grantee-manage" },
+            { "type": "principal-grants-list" },
+            { "type": "principal-role-grants-list" },
+            { "type": "catalog-role-grants-list" },
+            { "type": "principal-drop" },
+            { "type": "principal-properties-read" },
+            { "type": "principal-properties-write" },
+            { "type": "principal-metadata-full" },
+            { "type": "principal-credentials-rotate" },
+            { "type": "principal-credentials-reset" }
+          ],
+          "users": [ "admin1" ]
+        }
+      ]
+    },
+    {
+      "id": 4, "name": "principal-role:root_container/principal_role1",
+      "resources": {
+        "root":           { "values": [ "root_container" ] },
+        "principal-role": { "values": [ "principal_role1" ] }
+      },
+      "policyItems": [
+        {
+          "accesses": [
+            { "type": "principal-role-usage" },
+            { "type": "principal-role-drop" },
+            { "type": "principal-role-properties-read" },
+            { "type": "principal-role-properties-write" },
+            { "type": "principal-role-metadata-full" },
+            { "type": "principal-role-grants-manage" },
+            { "type": "principal-role-grants-for-grantee-manage" }
+          ],
+          "users": [ "admin1" ] }
+      ]
+    },
+    {
+      "id": 5, "name": "namespace:root_container/catalog1/namespace1",
+      "resources": {
+        "root":       { "values": [ "root_container" ] },
+        "catalog":    { "values": [ "catalog1" ] },
+        "namespace1": { "values": [ "namespace1" ] }
+      },
+      "policyItems": [
+        {
+          "accesses": [
+            { "type":  "namespace-create" },
+            { "type":  "namespace-drop" },
+            { "type":  "namespace-list" },
+            { "type":  "namespace-properties-read" },
+            { "type":  "namespace-properties-write" },
+            { "type":  "namespace-metadata-full" },
+            { "type":  "namespace-grants-list" },
+            { "type":  "namespace-grants-manage" },
+            { "type":  "namespace-policy-attach" },
+            { "type":  "namespace-policy-detach" },
+            { "type":  "table-create" },
+            { "type":  "table-list" },
+            { "type":  "view-create" },
+            { "type":  "view-list" },
+            { "type":  "policy-create" },
+            { "type":  "policy-list" },
+            { "type": "catalog-role-grants-for-grantee-manage" }
+          ],
+          "users": [ "admin1" ] }
+      ]
+    },
+    {
+      "id": 6, "name": "catalog-role:root_container/catalog1/role1",
       "resources": {
         "root":         { "values": [ "root_container" ] },
         "catalog":      { "values": [ "catalog1" ] },
         "catalog-role": { "values": [ "role1" ] }
       },
       "policyItems": [
-        { "accesses": [ { "type": "catalog-role-grants-for-grantee-manage" } ], "users": [ "admin1" ] }
+        {
+          "accesses": [
+            { "type": "catalog-role-usage" },
+            { "type": "catalog-role-drop" },
+            { "type": "catalog-role-properties-read" },
+            { "type": "catalog-role-properties-write" },
+            { "type": "catalog-role-metadata-full" },
+            { "type": "catalog-role-grants-manage" },
+            { "type": "catalog-role-grants-for-grantee-manage" }
+          ],
+          "users": [ "admin1" ] }
       ]
     },
     {
-      "id": 5, "name": "policy:root_container/catalog1/namespace1/policy1", "version": 1,
+      "id": 7, "name": "table:root_container/catalog1/namespace1/table1",
+      "resources": {
+        "root":       { "values": [ "root_container" ] },
+        "catalog":    { "values": [ "catalog1" ] },
+        "namespace1": { "values": [ "namespace1" ] },
+        "table":      { "values": [ "table1" ] }
+      },
+      "policyItems": [
+        {
+          "accesses": [
+            { "type": "table-drop" },
+            { "type": "table-properties-read" },
+            { "type": "table-properties-write" },
+            { "type": "table-data-read" },
+            { "type": "table-data-write" },
+            { "type": "table-metadata-full" },
+            { "type": "table-grants-list" },
+            { "type": "table-grants-manage" },
+            { "type": "table-policy-attach" },
+            { "type": "table-policy-detach" },
+            { "type": "view-drop" },
+            { "type": "view-properties-read" },
+            { "type": "view-properties-write" },
+            { "type": "view-metadata-full" },
+            { "type": "view-grants-list" },
+            { "type": "view-grants-manage" }
+          ],
+          "users": [ "admin1" ] }
+      ]
+    },
+    {
+      "id": 8, "name": "policy:root_container/catalog1/namespace1/policy1",
       "resources": {
         "root":      { "values": [ "root_container" ] },
         "catalog":   { "values": [ "catalog1" ] },
@@ -276,8 +386,13 @@
       "policyItems": [
         {
           "accesses": [
+            { "type": "policy-read" },
+            { "type": "policy-drop" },
+            { "type": "policy-write" },
+            { "type": "policy-metadata-full" },
             { "type": "policy-attach" },
-            { "type": "policy-detach" }
+            { "type": "policy-detach" },
+            { "type": "policy-grants-manage" }
           ],
           "users": [ "admin1" ] }
       ]
