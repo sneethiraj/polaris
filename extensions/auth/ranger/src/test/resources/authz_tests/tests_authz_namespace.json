@@ -61,10 +61,6 @@
       "result":  { "isAllowed": true }
     },
     {
-      "request": { "authzOp": "RENAME_TABLE", "principal": { "name": "admin1" }, "target": "ROOT:root_container;CATALOG:catalog1;NAMESPACE:namespace1", "secondary": "ROOT:root_container;CATALOG:catalog1;NAMESPACE:namespace1" },
-      "result":  { "isAllowed": true }
-    },
-    {
       "request": { "authzOp": "LIST_TABLES", "principal": { "name": "admin1" }, "target": "ROOT:root_container;CATALOG:catalog1;NAMESPACE:namespace1" },
       "result":  { "isAllowed": true }
     },
@@ -82,10 +78,6 @@
     },
     {
       "request": { "authzOp": "CREATE_VIEW", "principal": { "name": "admin1" }, "target": "ROOT:root_container;CATALOG:catalog1;NAMESPACE:namespace1" },
-      "result":  { "isAllowed": true }
-    },
-    {
-      "request": { "authzOp": "RENAME_VIEW", "principal": { "name": "admin1" }, "target": "ROOT:root_container;CATALOG:catalog1;NAMESPACE:namespace1", "secondary": "ROOT:root_container;CATALOG:catalog1;NAMESPACE:namespace1" },
       "result":  { "isAllowed": true }
     },
     {
