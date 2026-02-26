@@ -18,11 +18,24 @@
  */
 package org.apache.polaris.extension.auth.ranger;
 
+import com.google.common.base.Preconditions;
 import io.smallrye.config.ConfigMapping;
+import org.apache.polaris.extension.auth.ranger.utils.RangerUtils;
 import org.apache.polaris.immutables.PolarisImmutable;
+
+import java.util.Optional;
 
 @PolarisImmutable
 @ConfigMapping(prefix = "polaris.authorization.ranger")
 public interface RangerPolarisAuthorizerConfig {
-    String configFileName();
+    Optional<String> configFileName();
+
+    default void validate() {
+        Preconditions.checkState(configFileName().isPresent(),
+                "polaris.authorization.ranger.config-file-name must be configured");
+
+        Preconditions.checkState(!RangerUtils.loadProperties(configFileName().get()).isEmpty(),
+                "ranger configuration file [%s] must contain at least one property", configFileName().get()) ;
+    }
+
 }

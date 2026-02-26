@@ -73,7 +73,7 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
     public RangerPolarisAuthorizer(RangerPolarisAuthorizerConfig config, RealmConfig realmConfig) {
         LOG.info("Initializing RangerPolarisAuthorizer");
 
-        Properties rangerProp = RangerUtils.loadProperties(config.configFileName());
+        Properties rangerProp = RangerUtils.loadProperties(config.configFileName().get());
 
         this.realmConfig = realmConfig;
         this.authorizer  = new RangerEmbeddedAuthorizer(rangerProp);

@@ -24,13 +24,14 @@ import org.apache.polaris.core.config.RealmConfig;
 import org.apache.polaris.core.entity.CatalogEntity;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class RangerTestUtils {
     public static RangerPolarisAuthorizerConfig createConfig(String configFilename) {
         return new RangerPolarisAuthorizerConfig() {
             @Override
-            public String configFileName() {
-                return configFilename;
+            public Optional<String> configFileName() {
+                return Optional.of(configFilename) ;
             }
         };
     }
