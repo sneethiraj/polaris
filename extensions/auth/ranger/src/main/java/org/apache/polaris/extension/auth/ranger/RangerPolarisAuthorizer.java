@@ -182,26 +182,37 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
             @Nullable List<PolarisResolvedPathWrapper> secondaries) {
         boolean accessGranted = true;
 
+        boolean isTargetSpecified = targets != null && !targets.isEmpty();
+        boolean isSecondarySpecified = secondaries != null && !secondaries.isEmpty();
+
         if (! authzOp.getPrivilegesOnTarget().isEmpty()) {
-            Preconditions.checkState(targets != null && !targets.isEmpty(),
+            Preconditions.checkState(isTargetSpecified,
                     "No target provided to authorize %s for privilege %s", authzOp, authzOp.getPrivilegesOnTarget());
             for (PolarisResolvedPathWrapper target : targets) {
                 if (!isTargetAuthorized(principal, authzOp, target)) {
                     accessGranted = false;
-                    LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}", authzOp.name(), principal.getName(), target);
+                    LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}",
+                            authzOp.name(), principal.getName(), RangerUtils.toResourcePath(target));
                 }
             }
+        } else if (isTargetSpecified) {
+            LOG.warn("No privileges specified for target authorization. Ignoring target {}, op: {}, user: {}",
+                    RangerUtils.toResourcePath(targets), authzOp.name(), principal.getName());
         }
 
         if ( !authzOp.getPrivilegesOnSecondary().isEmpty() ) {
-            Preconditions.checkState(secondaries != null && !secondaries.isEmpty(),
+            Preconditions.checkState(isSecondarySpecified,
                     "No secondaries provided to authorize %s for privilege %s", authzOp, authzOp.getPrivilegesOnSecondary());
             for (PolarisResolvedPathWrapper secondary : secondaries) {
                 if (!isSecondaryAuthorized(principal, authzOp, secondary)) {
                     accessGranted = false;
-                    LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}", authzOp.name(), principal.getName(), secondary);
+                    LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}",
+                            authzOp.name(), principal.getName(), RangerUtils.toResourcePath(secondary));
                 }
             }
+        } else if (isSecondarySpecified) {
+            LOG.warn("No privileges specified for secondary authorization. Ignoring secondaries {}, op: {}, user: {}",
+                    RangerUtils.toResourcePath(secondaries), authzOp.name(), principal.getName());
         }
 
         return accessGranted ;

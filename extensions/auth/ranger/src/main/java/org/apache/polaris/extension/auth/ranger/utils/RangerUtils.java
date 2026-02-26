@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -189,6 +190,10 @@ public class RangerUtils {
             case TABLE_REMOVE_PARTITION_SPECS -> "table-partition-specs-remove";
             case TABLE_MANAGE_STRUCTURE -> "table-structure-manage";
         };
+    }
+
+    public static String toResourcePath(List<PolarisResolvedPathWrapper> resolvedPaths) {
+        return resolvedPaths.stream().map(RangerUtils::toResourcePath).collect(Collectors.joining(","));
     }
 
     public static String toResourcePath(PolarisResolvedPathWrapper resolvedPath) {
