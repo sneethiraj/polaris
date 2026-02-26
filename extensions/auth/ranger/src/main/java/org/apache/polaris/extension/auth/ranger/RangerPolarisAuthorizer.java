@@ -182,28 +182,22 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
             @Nullable List<PolarisResolvedPathWrapper> secondaries) {
         boolean accessGranted = true;
 
-        if (targets != null && !targets.isEmpty()) {
+        if (targets != null && !targets.isEmpty() && !authzOp.getPrivilegesOnTarget().isEmpty()) {
             for (PolarisResolvedPathWrapper target : targets) {
                 if (!isTargetAuthorized(principal, authzOp, target)) {
                     accessGranted = false;
-
                     LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}", authzOp.name(), principal.getName(), target);
                 }
             }
-        } else {
-            Preconditions.checkState(authzOp.getPrivilegesOnTarget().isEmpty(), "No target provided to authorize %s for privilege %s", authzOp, authzOp.getPrivilegesOnTarget());
         }
 
-        if (secondaries != null && !secondaries.isEmpty()) {
+        if (secondaries != null && !secondaries.isEmpty() && !authzOp.getPrivilegesOnSecondary().isEmpty()) {
             for (PolarisResolvedPathWrapper secondary : secondaries) {
                 if (!isSecondaryAuthorized(principal, authzOp, secondary)) {
                     accessGranted = false;
-
                     LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}", authzOp.name(), principal.getName(), secondary);
                 }
             }
-        } else {
-            Preconditions.checkState(authzOp.getPrivilegesOnSecondary().isEmpty(), "No secondary provided to authorize %s for privilege %s", authzOp, authzOp.getPrivilegesOnSecondary());
         }
 
         return accessGranted ;
@@ -215,13 +209,13 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
         try {
             RangerAuthzRequest request = RangerUtils.toAccessRequest(principal,entity, authzOp, RangerUtils.toPermissions(authzOp.getPrivilegesOnTarget()), SERVICE_TYPE, serviceName);
             RangerAuthzResult  result  = authorizer.authorize(request);
-
             accessAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals(result.getDecision()) ;
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("RangerPolicyEval: target: {}, result = {}", request.getAccess().getResource().getName(), accessAllowed);
+            }
         } catch (RangerAuthzException e) {
             LOG.error("Ranger authorization failed for principal {} on entity {}", principal, entity, e);
         }
-
-        LOG.debug("RangerPolicyEval: result = {}", accessAllowed);
 
         return accessAllowed ;
     }
@@ -232,13 +226,13 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
         try {
             RangerAuthzRequest request = RangerUtils.toAccessRequest(principal,entity, authzOp, RangerUtils.toPermissions(authzOp.getPrivilegesOnSecondary()), SERVICE_TYPE, serviceName);
             RangerAuthzResult  result  = authorizer.authorize(request);
-
-            accessAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals(result.getDecision()) ;
+           accessAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals(result.getDecision()) ;
+           if (LOG.isDebugEnabled()) {
+               LOG.debug("RangerPolicyEval: secondary: {}, result = {}", request.getAccess().getResource().getName(), accessAllowed);
+           }
         } catch (RangerAuthzException e) {
             LOG.error("Ranger authorization failed for principal {} on entity {}", principal, entity, e);
         }
-
-        LOG.debug("RangerPolicyEval: result = {}", accessAllowed);
 
         return accessAllowed ;
     }
