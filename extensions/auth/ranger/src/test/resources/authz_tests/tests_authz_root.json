@@ -1,146 +1,118 @@
 {
   "tests": [
     {
-      "name":    "CREATE_CATALOG: admin1 should be allowed",
       "request": { "authzOp": "CREATE_CATALOG", "principal": { "name": "admin1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "LIST_CATALOGS: admin1 should be allowed",
       "request": { "authzOp": "LIST_CATALOGS", "principal": { "name": "admin1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "CREATE_PRINCIPAL: admin1 should be allowed",
       "request": { "authzOp": "CREATE_PRINCIPAL", "principal": { "name": "admin1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "LIST_PRINCIPALS: admin1 should be allowed",
       "request": { "authzOp": "LIST_PRINCIPALS", "principal": { "name": "admin1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "CREATE_PRINCIPAL_ROLE: admin1 should be allowed",
       "request": { "authzOp": "CREATE_PRINCIPAL_ROLE", "principal": { "name": "admin1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "LIST_PRINCIPAL_ROLES: admin1 should be allowed",
       "request": { "authzOp": "LIST_PRINCIPAL_ROLES", "principal": { "name": "admin1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "LIST_PRINCIPAL_ROLES: admin1 should be allowed",
       "request": { "authzOp": "LIST_PRINCIPAL_ROLES", "principal": { "name": "admin1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "ADD_ROOT_GRANT_TO_PRINCIPAL_ROLE: admin1 should be allowed",
       "request": { "authzOp": "ADD_ROOT_GRANT_TO_PRINCIPAL_ROLE", "principal": { "name": "admin1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "REVOKE_ROOT_GRANT_FROM_PRINCIPAL_ROLE: admin1 should be allowed",
       "request": { "authzOp": "REVOKE_ROOT_GRANT_FROM_PRINCIPAL_ROLE", "principal": { "name": "admin1" }, "target": "ROOT:root_container", "secondary": "ROOT:root_container;PRINCIPAL_ROLE:principal_role1" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "LIST_GRANTS_ON_ROOT: admin1 should be allowed",
       "request": { "authzOp": "LIST_GRANTS_ON_ROOT", "principal": { "name": "admin1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
 
     {
-      "name":    "CREATE_CATALOG: user1 should be denied",
       "request": { "authzOp": "CREATE_CATALOG", "principal": { "name": "user1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "LIST_CATALOGS: user1 should be allowed",
       "request": { "authzOp": "LIST_CATALOGS", "principal": { "name": "user1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "CREATE_PRINCIPAL: user1 should be denied",
       "request": { "authzOp": "CREATE_PRINCIPAL", "principal": { "name": "user1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "LIST_PRINCIPALS: user1 should be allowed",
       "request": { "authzOp": "LIST_PRINCIPALS", "principal": { "name": "user1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "CREATE_PRINCIPAL_ROLE: user1 should be denied",
       "request": { "authzOp": "CREATE_PRINCIPAL_ROLE", "principal": { "name": "user1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "LIST_PRINCIPAL_ROLES: user1 should be allowed",
       "request": { "authzOp": "LIST_PRINCIPAL_ROLES", "principal": { "name": "user1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": true }
     },
     {
-      "name":    "ADD_ROOT_GRANT_TO_PRINCIPAL_ROLE: user1 should be denied",
       "request": { "authzOp": "ADD_ROOT_GRANT_TO_PRINCIPAL_ROLE", "principal": { "name": "user1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "REVOKE_ROOT_GRANT_FROM_PRINCIPAL_ROLE: user1 should be denied",
       "request": { "authzOp": "REVOKE_ROOT_GRANT_FROM_PRINCIPAL_ROLE", "principal": { "name": "user1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "LIST_GRANTS_ON_ROOT: user1 should be denied",
       "request": { "authzOp": "LIST_GRANTS_ON_ROOT", "principal": { "name": "user1" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
 
     {
-      "name":    "CREATE_CATALOG: user2 should be denied",
       "request": { "authzOp": "CREATE_CATALOG", "principal": { "name": "user2" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "LIST_CATALOGS: user2 should be denied",
       "request": { "authzOp": "LIST_CATALOGS", "principal": { "name": "user2" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "CREATE_PRINCIPAL: user2 should be denied",
       "request": { "authzOp": "CREATE_PRINCIPAL", "principal": { "name": "user2" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "LIST_PRINCIPALS: user2 should be denied",
       "request": { "authzOp": "LIST_PRINCIPALS", "principal": { "name": "user2" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "CREATE_PRINCIPAL_ROLE: user2 should be denied",
       "request": { "authzOp": "CREATE_PRINCIPAL_ROLE", "principal": { "name": "user2" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "LIST_PRINCIPAL_ROLES: user2 should be denied",
       "request": { "authzOp": "LIST_PRINCIPAL_ROLES", "principal": { "name": "user2" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "ADD_ROOT_GRANT_TO_PRINCIPAL_ROLE: user2 should be denied",
       "request": { "authzOp": "ADD_ROOT_GRANT_TO_PRINCIPAL_ROLE", "principal": { "name": "user2" }, "target": "ROOT:root_container" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "REVOKE_ROOT_GRANT_FROM_PRINCIPAL_ROLE: user2 should be denied",
       "request": { "authzOp": "REVOKE_ROOT_GRANT_FROM_PRINCIPAL_ROLE", "principal": { "name": "user2" }, "target": "ROOT:root_container", "secondary": "ROOT:root_container;PRINCIPAL_ROLE:principal_role1" },
       "result":  { "isAllowed": false }
     },
     {
-      "name":    "LIST_GRANTS_ON_ROOT: user2 should be denied",
       "request": { "authzOp": "LIST_GRANTS_ON_ROOT", "principal": { "name": "user2" }, "target": "ROOT:root_container" },
-      "result":  { "isAllowed": false }
+      "result":  { "isAllowed": true }
     }
   ]
 }

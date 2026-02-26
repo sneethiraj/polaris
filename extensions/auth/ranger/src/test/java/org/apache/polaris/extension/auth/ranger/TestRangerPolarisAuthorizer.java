@@ -44,9 +44,8 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.polaris.extension.auth.ranger.RangerTestUtils.createConfig;
 import static org.apache.polaris.extension.auth.ranger.RangerTestUtils.createRealmConfig;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestRangerPolarisAuthorizer {
     final Gson              gsonBuilder;
@@ -97,9 +96,9 @@ public class TestRangerPolarisAuthorizer {
             try {
                 authorizer.authorizeOrThrow(test.request.principal, Collections.emptySet(), test.request.authzOp, test.request.target, test.request.secondary);
 
-                assertTrue(test.result.isAllowed, test.name + ": access expected to be denied, but was allowed");
+                assertEquals(Boolean.TRUE, test.result.isAllowed, () -> test.request.principal + " performed " + test.request.authzOp  + " on (target: " + test.request.target + ", secondary: " + test.request.secondary + ")");
             } catch (Throwable t) {
-                assertFalse(test.result.isAllowed, test.name + ": access expected to be allowed, but was denied");
+                assertEquals(Boolean.FALSE, test.result.isAllowed, () -> test.request.principal + " performed " + test.request.authzOp  + " on (target: " + test.request.target + ", secondary: " + test.request.secondary + ")");
             }
         }
     }
