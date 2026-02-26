@@ -182,7 +182,9 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
             @Nullable List<PolarisResolvedPathWrapper> secondaries) {
         boolean accessGranted = true;
 
-        if (targets != null && !targets.isEmpty() && !authzOp.getPrivilegesOnTarget().isEmpty()) {
+        if (! authzOp.getPrivilegesOnTarget().isEmpty()) {
+            Preconditions.checkState(targets != null && !targets.isEmpty(),
+                    "No target provided to authorize %s for privilege %s", authzOp, authzOp.getPrivilegesOnTarget());
             for (PolarisResolvedPathWrapper target : targets) {
                 if (!isTargetAuthorized(principal, authzOp, target)) {
                     accessGranted = false;
@@ -191,7 +193,9 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
             }
         }
 
-        if (secondaries != null && !secondaries.isEmpty() && !authzOp.getPrivilegesOnSecondary().isEmpty()) {
+        if ( !authzOp.getPrivilegesOnSecondary().isEmpty() ) {
+            Preconditions.checkState(secondaries != null && !secondaries.isEmpty(),
+                    "No secondaries provided to authorize %s for privilege %s", authzOp, authzOp.getPrivilegesOnSecondary());
             for (PolarisResolvedPathWrapper secondary : secondaries) {
                 if (!isSecondaryAuthorized(principal, authzOp, secondary)) {
                     accessGranted = false;
