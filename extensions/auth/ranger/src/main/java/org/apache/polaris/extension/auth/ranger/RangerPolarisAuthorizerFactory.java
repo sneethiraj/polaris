@@ -44,6 +44,7 @@ public class RangerPolarisAuthorizerFactory implements PolarisAuthorizerFactory 
 
     @PostConstruct
     public void initialize() {
+        config.validate();
     }
 
     @PreDestroy

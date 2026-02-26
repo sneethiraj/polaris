@@ -36,6 +36,9 @@ public interface RangerPolarisAuthorizerConfig {
 
         Preconditions.checkState(!RangerUtils.loadProperties(configFileName().get()).isEmpty(),
                 "ranger configuration file [%s] must contain at least one property", configFileName().get()) ;
+
+        //TODO: add more validation of ranger configuration
+
     }
 
 }
