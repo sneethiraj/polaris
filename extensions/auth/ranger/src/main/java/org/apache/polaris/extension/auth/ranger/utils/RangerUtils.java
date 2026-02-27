@@ -62,9 +62,14 @@ public class RangerUtils {
             }
 
             try (InputStream in = RangerPolarisAuthorizer.class.getResourceAsStream(resourcePath)) {
-                prop.load(in);
+                if (in != null) {
+                    prop.load(in);
+                }
+                else {
+                    LOG.error("Unable to find ranger config file in the classpath : [{}]", resourcePath);
+                }
             } catch(IOException e){
-                LOG.warn("Unable to load config file: [{}]", resourcePath, e);
+                LOG.error("Unable to load config file: [{}]", resourcePath, e);
             }
         }
 

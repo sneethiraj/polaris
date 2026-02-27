@@ -69,6 +69,7 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
     private final RealmConfig      realmConfig;
     private final RangerAuthorizer authorizer;
     private final String           serviceName;
+    private boolean isInitialized = false;
 
     public RangerPolarisAuthorizer(RangerPolarisAuthorizerConfig config, RealmConfig realmConfig) {
         LOG.info("Initializing RangerPolarisAuthorizer");
@@ -81,9 +82,9 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
 
         try {
             authorizer.init();
+            isInitialized = true ;
         } catch (RangerAuthzException t) {
             LOG.error("Failed to initialize RangerPolarisAuthorizer", t);
-
             throw new RuntimeException(t);
         }
 
@@ -108,6 +109,9 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
             @Nullable List<PolarisResolvedPathWrapper> targets,
             @Nullable List<PolarisResolvedPathWrapper> secondaries) {
         try {
+            if (!isInitialized) {
+                throw new IllegalStateException("RangerPolarisAuthorizer is not initialized");
+            }
             if (authzOp == PolarisAuthorizableOperation.ROTATE_CREDENTIALS) {
                 boolean enforceCredentialRotationRequiredState = realmConfig.getConfig(FeatureConfiguration.ENFORCE_PRINCIPAL_CREDENTIAL_ROTATION_REQUIRED_CHECKING);
 
@@ -131,7 +135,6 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
             }
         } catch(IllegalStateException ise) {
             LOG.error("Failed to authorize principal {} for op {}. Throwing exception. {}", polarisPrincipal, authzOp, ise);
-
             throw ise;
         }
     }
@@ -181,7 +184,6 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
             @Nullable List<PolarisResolvedPathWrapper> targets,
             @Nullable List<PolarisResolvedPathWrapper> secondaries) {
         boolean accessGranted = true;
-
         boolean isTargetSpecified = targets != null && !targets.isEmpty();
         boolean isSecondarySpecified = secondaries != null && !secondaries.isEmpty();
 

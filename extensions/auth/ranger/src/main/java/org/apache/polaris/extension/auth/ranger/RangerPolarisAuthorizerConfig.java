@@ -22,22 +22,34 @@ import com.google.common.base.Preconditions;
 import io.smallrye.config.ConfigMapping;
 import org.apache.polaris.extension.auth.ranger.utils.RangerUtils;
 import org.apache.polaris.immutables.PolarisImmutable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.Properties;
 
 @PolarisImmutable
 @ConfigMapping(prefix = "polaris.authorization.ranger")
 public interface RangerPolarisAuthorizerConfig {
+    static final String INVALID_CONFIG_FILE_NAME_ERROR = "Ranger Authorization failed due to incorrect ranger authorization plugin configuration";
+    static final Logger LOG = LoggerFactory.getLogger(RangerPolarisAuthorizerConfig.class);
+
     Optional<String> configFileName();
 
     default void validate() {
-        Preconditions.checkState(configFileName().isPresent(),
-                "polaris.authorization.ranger.config-file-name must be configured");
+        boolean isConfigFileNamePresent = configFileName().isPresent();
 
-        Preconditions.checkState(!RangerUtils.loadProperties(configFileName().get()).isEmpty(),
-                "ranger configuration file [%s] must contain at least one property", configFileName().get()) ;
+        if (! isConfigFileNamePresent ) {
+            LOG.info("polaris.authorization.ranger.config-file-name is not configured, all authorization will fail.");
+            throw new IllegalStateException(INVALID_CONFIG_FILE_NAME_ERROR);
+        }
 
-        //TODO: add more validation of ranger configuration
+        Properties prop = RangerUtils.loadProperties(configFileName().get()) ;
+
+        if (prop.isEmpty()) {
+            LOG.info("ranger configuration file: {} does not have any valid configuration.", configFileName().get());
+            throw new IllegalStateException(INVALID_CONFIG_FILE_NAME_ERROR);
+        }
 
     }
 
