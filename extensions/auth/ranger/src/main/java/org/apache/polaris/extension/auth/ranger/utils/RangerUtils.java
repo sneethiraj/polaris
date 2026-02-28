@@ -23,6 +23,7 @@ import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.polaris.core.auth.PolarisAuthorizableOperation;
 import org.apache.polaris.core.auth.PolarisPrincipal;
+import org.apache.polaris.core.entity.PolarisEntity;
 import org.apache.polaris.core.entity.PolarisEntityType;
 import org.apache.polaris.core.entity.PolarisPrivilege;
 import org.apache.polaris.core.persistence.PolarisResolvedPathWrapper;
@@ -41,13 +42,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RangerUtils {
     private static final Logger LOG = LoggerFactory.getLogger(RangerUtils.class);
+
+    private static final String RESOURCE_NONE = "none";
 
     public static Properties loadProperties(String resourcePath) {
         Properties prop = new Properties();
@@ -64,8 +69,7 @@ public class RangerUtils {
             try (InputStream in = RangerPolarisAuthorizer.class.getResourceAsStream(resourcePath)) {
                 if (in != null) {
                     prop.load(in);
-                }
-                else {
+                } else {
                     LOG.error("Unable to find ranger config file in the classpath : [{}]", resourcePath);
                 }
             } catch(IOException e){
@@ -78,15 +82,17 @@ public class RangerUtils {
 
     public static String toResourceType(PolarisEntityType entityType) {
         return switch (entityType) {
+            case NULL_TYPE -> RESOURCE_NONE;
+            case ROOT -> "root";
+            case PRINCIPAL -> "principal";
+            case PRINCIPAL_ROLE -> "principal-role";
             case CATALOG -> "catalog";
-            case ROOT -> "root" ;
-            case TABLE_LIKE ->  "table" ;
-            case NAMESPACE -> "namespace" ;
-            case PRINCIPAL -> "principal" ;
-            case PRINCIPAL_ROLE -> "principal-role" ;
-            case CATALOG_ROLE -> "catalog-role" ;
-            case POLICY -> "policy" ;
-            default -> "none" ;
+            case CATALOG_ROLE -> "catalog-role";
+            case NAMESPACE -> "namespace";
+            case TABLE_LIKE ->  "table";
+            case TASK -> RESOURCE_NONE;
+            case FILE -> RESOURCE_NONE;
+            case POLICY -> "policy";
         } ;
     }
 
@@ -203,7 +209,7 @@ public class RangerUtils {
 
     public static String toResourcePath(PolarisResolvedPathWrapper resolvedPath) {
         StringBuilder sb           = new StringBuilder();
-        String        resourceType = RangerUtils.toResourceType(resolvedPath.getResolvedLeafEntity().getEntity().getType());
+        String        resourceType = toResourceType(resolvedPath.getResolvedLeafEntity().getEntity().getType());
 
         sb.append(resourceType).append(RangerResourceNameParser.RRN_RESOURCE_TYPE_SEP) ;
 
@@ -226,6 +232,7 @@ public class RangerUtils {
         RangerResourceInfo ret = new RangerResourceInfo();
 
         ret.setName(toResourcePath(resourcePath));
+        ret.setAttributes(getResourceAttributes(resourcePath));
 
         return ret;
     }
@@ -235,14 +242,14 @@ public class RangerUtils {
     }
 
     public static RangerAuthzRequest toAccessRequest(
-            @Nonnull PolarisPrincipal polarisPrincipal,
+            @Nonnull PolarisPrincipal principal,
             @Nonnull PolarisResolvedPathWrapper entity,
             @Nonnull PolarisAuthorizableOperation authzOp,
             @Nonnull Set<String> permissions,
             @Nonnull String serviceType,
             @Nonnull String serviceName) {
-        RangerUserInfo      user     = new RangerUserInfo(polarisPrincipal.getName(), Collections.emptyMap(), polarisPrincipal.getRoles(), null);
-        RangerAccessInfo    access   = new RangerAccessInfo(RangerUtils.toResourceInfo(entity), authzOp.name(), permissions);
+        RangerUserInfo      user     = new RangerUserInfo(principal.getName(), getUserAttributes(principal), null, principal.getRoles());
+        RangerAccessInfo    access   = new RangerAccessInfo(toResourceInfo(entity), authzOp.name(), permissions);
         RangerAccessContext context = new RangerAccessContext(serviceType, serviceName);
 
         if (LOG.isDebugEnabled()) {
@@ -251,5 +258,29 @@ public class RangerUtils {
         }
 
         return new RangerAuthzRequest(user, access, context);
+    }
+
+    private static Map<String, Object> getResourceAttributes(PolarisResolvedPathWrapper resourcePath) {
+        Map<String, Object> ret = null;
+
+        for (ResolvedPolarisEntity resolvedEntity : resourcePath.getResolvedFullPath()) {
+            PolarisEntity entity = resolvedEntity.getEntity();
+
+            if (StringUtils.isNotBlank(entity.getProperties())) {
+                if (ret == null) {
+                    ret = new HashMap<>(entity.getPropertiesAsMap());
+                } else {
+                    ret.putAll(entity.getPropertiesAsMap());
+                }
+            }
+        }
+
+        return ret == null ? Collections.emptyMap() : ret;
+    }
+
+    private static Map<String, Object> getUserAttributes(PolarisPrincipal principal) {
+        Map<String, String> properties = principal.getProperties();
+
+        return (properties == null || properties.isEmpty()) ? Collections.emptyMap() : new HashMap<>(properties);
     }
 }

@@ -33,7 +33,7 @@ polaris.authorization.type=ranger
 polaris.authorization.ranger.config-file-name=ranger-plugin.properties
 #---------------------------------------------
 
-2. Copy the sample ranger-pluin.properties file from sample-conf folder to
+2. Copy the sample ranger-plugin.properties file from sample-conf folder to
    the folder where application.properties file is located and
    modify the config properties according your ranger installation.
 

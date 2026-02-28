@@ -190,11 +190,15 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
         if (! authzOp.getPrivilegesOnTarget().isEmpty()) {
             Preconditions.checkState(isTargetSpecified,
                     "No target provided to authorize %s for privilege %s", authzOp, authzOp.getPrivilegesOnTarget());
+
             for (PolarisResolvedPathWrapper target : targets) {
                 if (!isTargetAuthorized(principal, authzOp, target)) {
                     accessGranted = false;
-                    LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}",
-                            authzOp.name(), principal.getName(), RangerUtils.toResourcePath(target));
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}",
+                                authzOp.name(), principal.getName(), RangerUtils.toResourcePath(target));
+                    }
                 }
             }
         } else if (isTargetSpecified) {
@@ -205,11 +209,15 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
         if ( !authzOp.getPrivilegesOnSecondary().isEmpty() ) {
             Preconditions.checkState(isSecondarySpecified,
                     "No secondaries provided to authorize %s for privilege %s", authzOp, authzOp.getPrivilegesOnSecondary());
+
             for (PolarisResolvedPathWrapper secondary : secondaries) {
                 if (!isSecondaryAuthorized(principal, authzOp, secondary)) {
                     accessGranted = false;
-                    LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}",
-                            authzOp.name(), principal.getName(), RangerUtils.toResourcePath(secondary));
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Failed to satisfy privilege {} for principal {} on entity {}",
+                                authzOp.name(), principal.getName(), RangerUtils.toResourcePath(secondary));
+                    }
                 }
             }
         } else if (isSecondarySpecified) {
@@ -226,7 +234,9 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
         try {
             RangerAuthzRequest request = RangerUtils.toAccessRequest(principal,entity, authzOp, RangerUtils.toPermissions(authzOp.getPrivilegesOnTarget()), SERVICE_TYPE, serviceName);
             RangerAuthzResult  result  = authorizer.authorize(request);
+
             accessAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals(result.getDecision()) ;
+
             if (LOG.isDebugEnabled()) {
                 LOG.debug("RangerPolicyEval: target: {}, result = {}", request.getAccess().getResource().getName(), accessAllowed);
             }
@@ -243,7 +253,9 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
         try {
             RangerAuthzRequest request = RangerUtils.toAccessRequest(principal,entity, authzOp, RangerUtils.toPermissions(authzOp.getPrivilegesOnSecondary()), SERVICE_TYPE, serviceName);
             RangerAuthzResult  result  = authorizer.authorize(request);
-           accessAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals(result.getDecision()) ;
+
+            accessAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals(result.getDecision()) ;
+
            if (LOG.isDebugEnabled()) {
                LOG.debug("RangerPolicyEval: secondary: {}, result = {}", request.getAccess().getResource().getName(), accessAllowed);
            }
