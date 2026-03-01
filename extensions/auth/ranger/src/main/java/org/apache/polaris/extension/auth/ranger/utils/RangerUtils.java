@@ -19,7 +19,6 @@
 
 package org.apache.polaris.extension.auth.ranger.utils;
 
-import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.polaris.core.auth.PolarisAuthorizableOperation;
 import org.apache.polaris.core.auth.PolarisPrincipal;
@@ -29,9 +28,7 @@ import org.apache.polaris.core.entity.PolarisPrivilege;
 import org.apache.polaris.core.persistence.PolarisResolvedPathWrapper;
 import org.apache.polaris.core.persistence.ResolvedPolarisEntity;
 import org.apache.polaris.extension.auth.ranger.RangerPolarisAuthorizer;
-import org.apache.ranger.authz.model.RangerAccessContext;
 import org.apache.ranger.authz.model.RangerAccessInfo;
-import org.apache.ranger.authz.model.RangerAuthzRequest;
 import org.apache.ranger.authz.model.RangerResourceInfo;
 import org.apache.ranger.authz.model.RangerUserInfo;
 import org.apache.ranger.authz.util.RangerResourceNameParser;
@@ -203,6 +200,14 @@ public class RangerUtils {
         };
     }
 
+    public static RangerUserInfo toUserInfo(PolarisPrincipal principal) {
+        return new RangerUserInfo(principal.getName(), getUserAttributes(principal), null, principal.getRoles());
+    }
+
+    public static RangerAccessInfo toAccessInfo(PolarisResolvedPathWrapper entity, PolarisAuthorizableOperation authzOp, EnumSet<PolarisPrivilege> privileges) {
+        return new RangerAccessInfo(RangerUtils.toResourceInfo(entity), authzOp.name(), RangerUtils.toPermissions(privileges));
+    }
+
     public static String toResourcePath(List<PolarisResolvedPathWrapper> resolvedPaths) {
         return resolvedPaths.stream().map(RangerUtils::toResourcePath).collect(Collectors.joining(","));
     }
@@ -228,7 +233,7 @@ public class RangerUtils {
         return sb.toString() ;
     }
 
-    public static RangerResourceInfo toResourceInfo(PolarisResolvedPathWrapper resourcePath) {
+    private static RangerResourceInfo toResourceInfo(PolarisResolvedPathWrapper resourcePath) {
         RangerResourceInfo ret = new RangerResourceInfo();
 
         ret.setName(toResourcePath(resourcePath));
@@ -237,27 +242,8 @@ public class RangerUtils {
         return ret;
     }
 
-    public static Set<String> toPermissions(EnumSet<PolarisPrivilege> privileges) {
+    private static Set<String> toPermissions(EnumSet<PolarisPrivilege> privileges) {
         return privileges.stream().map(RangerUtils::toAccessType).collect(Collectors.toSet());
-    }
-
-    public static RangerAuthzRequest toAccessRequest(
-            @Nonnull PolarisPrincipal principal,
-            @Nonnull PolarisResolvedPathWrapper entity,
-            @Nonnull PolarisAuthorizableOperation authzOp,
-            @Nonnull Set<String> permissions,
-            @Nonnull String serviceType,
-            @Nonnull String serviceName) {
-        RangerUserInfo      user     = new RangerUserInfo(principal.getName(), getUserAttributes(principal), null, principal.getRoles());
-        RangerAccessInfo    access   = new RangerAccessInfo(toResourceInfo(entity), authzOp.name(), permissions);
-        RangerAccessContext context = new RangerAccessContext(serviceType, serviceName);
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("user: {}, group: {}, permissions: {}, resource: {} ",
-                    user.getName(), StringUtils.join(user.getGroups(), ","), StringUtils.join(permissions, ","), access.getResource().getName());
-        }
-
-        return new RangerAuthzRequest(user, access, context);
     }
 
     private static Map<String, Object> getResourceAttributes(PolarisResolvedPathWrapper resourcePath) {

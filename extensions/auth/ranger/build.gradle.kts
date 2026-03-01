@@ -27,15 +27,14 @@ dependencies {
 
   implementation(fileTree("override-libs") {include("*.jar")})
 
-  implementation("org.apache.ranger:ranger-plugins-common:2.8.0-SNAPSHOT")
+  implementation("org.apache.ranger:ranger-plugins-common:2.8.0")
 
-  implementation("org.apache.ranger:authz-embedded:2.8.0-SNAPSHOT")
+  implementation("org.apache.ranger:authz-embedded:2.8.0")
 
   // Iceberg dependency for ForbiddenException
   implementation(platform(libs.iceberg.bom))
   implementation("org.apache.iceberg:iceberg-api")
   implementation(project(":polaris-async-api"))
-  // Added to support run 2.8-SNAPSHOT
   implementation(libs.guava)
 
   compileOnly(project(":polaris-immutables"))
@@ -45,14 +44,12 @@ dependencies {
   compileOnly(libs.smallrye.config.core)
 
   implementation("org.apache.commons:commons-lang3:3.19.0")
-  // 2.8.0 to 2.10.1
-  // runtimeOnly("org.apache.commons:commons-configuration2:2.8.0")
   runtimeOnly("org.apache.commons:commons-configuration2:2.10.1")
   runtimeOnly("org.apache.commons:commons-text")
   runtimeOnly("commons-collections:commons-collections:3.2.2")
-  runtimeOnly("org.apache.ranger:ranger-audit-core:2.8.0-SNAPSHOT")
-  runtimeOnly("org.apache.ranger:ranger-plugin-classloader:2.8.0-SNAPSHOT")
-  runtimeOnly("org.apache.ranger:ranger-plugins-cred:2.8.0-SNAPSHOT")
-  runtimeOnly("org.apache.ranger:ranger-audit-dest-solr:2.8.0-SNAPSHOT")
+  runtimeOnly("org.apache.ranger:ranger-audit-core:2.8.0")
+  runtimeOnly("org.apache.ranger:ranger-plugin-classloader:2.8.0")
+  runtimeOnly("org.apache.ranger:ranger-plugins-cred:2.8.0")
+  runtimeOnly("org.apache.ranger:ranger-audit-dest-solr:2.8.0")
   runtimeOnly("org.apache.zookeeper:zookeeper:3.8.4")
 }
