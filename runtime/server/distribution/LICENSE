@@ -2182,25 +2182,50 @@ License: CDDL - https://javaee.github.io/jaxb-v2/LICENSE
 
 --------------------------------------------------------------------------------
 
-This product bundles GraalVM libraries.
+This product bundles GraalVM js libraries.
 
 * Maven group:artifact IDs: org.graalvm.js:js
 * Maven group:artifact IDs: org.graalvm.js:js-language
 * Maven group:artifact IDs: org.graalvm.js:js-scriptengine
+
+Home page: https://github.com/oracle/graaljs/
+License: The Universal Permissive License (UPL), Version 1.0 - https://github.com/oracle/graaljs/blob/master/LICENSE
+
+--------------------------------------------------------------------------------
+
+This product bundles GraalVM regex libraries.
+
+* Maven group:artifact IDs: org.graalvm.regex:regex
+
+Home page: https://github.com/oracle/graal/regex
+License: The Universal Permissive License (UPL), Version 1.0 - https://github.com/oracle/graal/blob/master/regex/LICENSE.md
+
+--------------------------------------------------------------------------------
+
+This product bundles GraalVM sdk libraries.
+
 * Maven group:artifact IDs: org.graalvm.polyglot:js
 * Maven group:artifact IDs: org.graalvm.polyglot:polyglot
-* Maven group:artifact IDs: org.graalvm.regex:regex
 * Maven group:artifact IDs: org.graalvm.sdk:collections
 * Maven group:artifact IDs: org.graalvm.sdk:jniutils
 * Maven group:artifact IDs: org.graalvm.sdk:nativeimage
 * Maven group:artifact IDs: org.graalvm.sdk:word
+
+Home page: https://github.com/oracle/graal/sdk
+License: The Universal Permissive License (UPL), Version 1.0 - https://github.com/oracle/graal/blob/master/sdk/LICENSE.md
+
+--------------------------------------------------------------------------------
+
+This product bundles GraalVM truffle libraries.
+
+
 * Maven group:artifact IDs: org.graalvm.shadowed:icu4j
 * Maven group:artifact IDs: org.graalvm.shadowed:xz
 * Maven group:artifact IDs: org.graalvm.truffle:truffle-api
 * Maven group:artifact IDs: org.graalvm.truffle:truffle-compiler
 * Maven group:artifact IDs: org.graalvm.truffle:truffle-runtime
 
-Home page: https://github.com/oracle/graal/
-License: The GNU General Public License (GPL) - https://github.com/oracle/graal/blob/master/LICENSE
+Home page: https://github.com/oracle/graal/truffle
+License: The Universal Permissive License (UPL), Version 1.0 - https://github.com/oracle/graal/blob/master/truffle/LICENSE.md
 
 --------------------------------------------------------------------------------
