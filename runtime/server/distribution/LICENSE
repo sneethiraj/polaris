@@ -2189,7 +2189,7 @@ This product bundles GraalVM js libraries.
 * Maven group:artifact IDs: org.graalvm.js:js-scriptengine
 
 Home page: https://github.com/oracle/graaljs/
-License: The Universal Permissive License (UPL), Version 1.0 - https://github.com/oracle/graaljs/blob/master/LICENSE
+License: The Universal Permissive License (UPL), Version 1.0 - http://opensource.org/licenses/UPL
 
 --------------------------------------------------------------------------------
 
@@ -2197,35 +2197,58 @@ This product bundles GraalVM regex libraries.
 
 * Maven group:artifact IDs: org.graalvm.regex:regex
 
-Home page: https://github.com/oracle/graal/regex
-License: The Universal Permissive License (UPL), Version 1.0 - https://github.com/oracle/graal/blob/master/regex/LICENSE.md
+Home page: https://github.com/oracle/graal/tree/master/regex
+License: The Universal Permissive License (UPL), Version 1.0 - http://opensource.org/licenses/UPL
+
+--------------------------------------------------------------------------------
+
+This product bundles GraalVM Js Pom Polyglot libraries.
+
+* Maven group:artifact IDs: org.graalvm.polyglot:js
+* Maven group:artifact IDs: org.graalvm.polyglot:polyglot
+
+Home page: https://github.com/oracle/graal/tree/master/sdk
+License: MIT License - http://opensource.org/licenses/MIT
 
 --------------------------------------------------------------------------------
 
 This product bundles GraalVM sdk libraries.
 
-* Maven group:artifact IDs: org.graalvm.polyglot:js
-* Maven group:artifact IDs: org.graalvm.polyglot:polyglot
 * Maven group:artifact IDs: org.graalvm.sdk:collections
 * Maven group:artifact IDs: org.graalvm.sdk:jniutils
 * Maven group:artifact IDs: org.graalvm.sdk:nativeimage
 * Maven group:artifact IDs: org.graalvm.sdk:word
 
-Home page: https://github.com/oracle/graal/sdk
-License: The Universal Permissive License (UPL), Version 1.0 - https://github.com/oracle/graal/blob/master/sdk/LICENSE.md
+Home page: https://github.com/oracle/graal/tree/master/sdk
+License: The Universal Permissive License (UPL), Version 1.0 - http://opensource.org/licenses/UPL
+
+--------------------------------------------------------------------------------
+
+This product bundles GraalVM truffle ICU4J shaded modules.
+
+* Maven group:artifact IDs: org.graalvm.shadowed:icu4j
+
+Home page: https://github.com/oracle/graal/tree/master/truffle
+License: Unicode/ICU License - https://raw.githubusercontent.com/unicode-org/icu/main/LICENSE
+
+--------------------------------------------------------------------------------
+
+This product bundles GraalVM truffle Shaded XZ Java module.
+
+* Maven group:artifact IDs: org.graalvm.shadowed:xz
+
+Home Page: https://github.com/oracle/graal/tree/master/truffle
+License: The Universal Permissive License (UPL), Version 1.0 - http://opensource.org/licenses/UPL
 
 --------------------------------------------------------------------------------
 
 This product bundles GraalVM truffle libraries.
 
-
-* Maven group:artifact IDs: org.graalvm.shadowed:icu4j
-* Maven group:artifact IDs: org.graalvm.shadowed:xz
 * Maven group:artifact IDs: org.graalvm.truffle:truffle-api
 * Maven group:artifact IDs: org.graalvm.truffle:truffle-compiler
 * Maven group:artifact IDs: org.graalvm.truffle:truffle-runtime
 
-Home page: https://github.com/oracle/graal/truffle
-License: The Universal Permissive License (UPL), Version 1.0 - https://github.com/oracle/graal/blob/master/truffle/LICENSE.md
+Home page: https://github.com/oracle/graal/tree/master/truffle
+License: The Universal Permissive License (UPL), Version 1.0 - http://opensource.org/licenses/UPL
 
 --------------------------------------------------------------------------------
