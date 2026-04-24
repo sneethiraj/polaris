@@ -723,6 +723,24 @@
               ]
             }
           ]
+        },
+        {
+          "accesses": [
+            {
+              "type": "catalog-list"
+            }
+          ],
+          "users": [
+            "region1user", "region2user"
+          ],
+          "conditions": [
+            {
+              "type": "_expression",
+              "values": [
+                "USER.region = 'region2'"
+              ]
+            }
+          ]
         }
       ]
     }

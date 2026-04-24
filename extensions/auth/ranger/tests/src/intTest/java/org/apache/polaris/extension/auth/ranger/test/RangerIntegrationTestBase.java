@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import org.junit.jupiter.api.AfterEach;
 
 /**
@@ -74,20 +75,24 @@ public abstract class RangerIntegrationTestBase {
     return accessToken;
   }
 
-  protected String getUserToken(String userName) {
+  protected String getUserToken(String userName, Properties userProperties) {
     String token = user2Token.get(userName);
     if (token == null) {
-      token = createPrincipalAndGetToken(userName);
+      token = createPrincipalAndGetToken(userName, userProperties);
       user2Token.put(userName, token);
     }
     return token;
   }
 
-  protected String createPrincipalAndGetToken(String principalName) {
+  protected String getUserToken(String userName) {
+    return getUserToken(userName, new Properties());
+  }
+
+  protected String createPrincipalAndGetToken(String principalName, Properties userProperties) {
     String rootToken = getRootToken();
 
     Map<String, Object> createPrincipalBody =
-        Map.of("principal", Map.of("name", principalName, "properties", Map.of()));
+        Map.of("principal", Map.of("name", principalName, "properties", userProperties));
     String createResponse =
         given()
             .contentType("application/json")
@@ -129,6 +134,10 @@ public abstract class RangerIntegrationTestBase {
     }
 
     return accessToken;
+  }
+
+  protected String createPrincipalAndGetToken(String principalName) {
+    return createPrincipalAndGetToken(principalName, new Properties());
   }
 
   protected String extractJsonValue(String json, String key) {

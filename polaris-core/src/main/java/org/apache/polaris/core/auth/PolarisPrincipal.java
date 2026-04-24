@@ -19,6 +19,7 @@
 package org.apache.polaris.core.auth;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -41,11 +42,9 @@ public interface PolarisPrincipal extends Principal {
    * @param roles the set of roles associated with the principal
    */
   static PolarisPrincipal of(PrincipalEntity principalEntity, Set<String> roles) {
-    return of(
-        principalEntity.getName(),
-        principalEntity.getInternalPropertiesAsMap(),
-        roles,
-        Optional.empty());
+    Map<String, String> allProperties = new HashMap<>(principalEntity.getInternalPropertiesAsMap());
+    allProperties.putAll(principalEntity.getPropertiesAsMap());
+    return of(principalEntity.getName(), allProperties, roles, Optional.empty());
   }
 
   /**
@@ -61,8 +60,9 @@ public interface PolarisPrincipal extends Principal {
    */
   static PolarisPrincipal of(
       PrincipalEntity principalEntity, Set<String> roles, Optional<String> token) {
-    return of(
-        principalEntity.getName(), principalEntity.getInternalPropertiesAsMap(), roles, token);
+    Map<String, String> allProperties = new HashMap<>(principalEntity.getInternalPropertiesAsMap());
+    allProperties.putAll(principalEntity.getPropertiesAsMap());
+    return of(principalEntity.getName(), allProperties, roles, token);
   }
 
   /**
