@@ -737,7 +737,7 @@
             {
               "type": "_expression",
               "values": [
-                "USER.region = 'region2'"
+                "USER.region == 'region2'"
               ]
             }
           ]

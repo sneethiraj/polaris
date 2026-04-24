@@ -32,10 +32,13 @@ import org.apache.polaris.core.entity.PolarisEntity;
 import org.apache.polaris.core.entity.PolarisEntityType;
 import org.apache.polaris.core.persistence.PolarisResolvedPathWrapper;
 import org.apache.polaris.core.persistence.ResolvedPolarisEntity;
+import org.apache.ranger.authz.model.RangerAccessContext;
 import org.apache.ranger.authz.model.RangerAccessInfo;
 import org.apache.ranger.authz.model.RangerResourceInfo;
 import org.apache.ranger.authz.model.RangerUserInfo;
 import org.apache.ranger.authz.util.RangerResourceNameParser;
+import org.apache.ranger.plugin.util.RangerAccessRequestUtil;
+import org.apache.ranger.plugin.util.RangerUserStore;
 
 public class RangerUtils {
 
@@ -132,5 +135,25 @@ public class RangerUtils {
     return (properties == null || properties.isEmpty())
         ? Collections.emptyMap()
         : new HashMap<>(properties);
+  }
+
+  public static void setUserAttribsInRequestContext(
+      RangerUserInfo userInfo, RangerAccessContext rangerAccessContext) {
+    if (!userInfo.getAttributes().isEmpty()) {
+      RangerUserStore store = new RangerUserStore();
+      Map<String, Map<String, String>> userAttrMapping = new HashMap<>();
+      Map<String, String> attributeMap =
+          userInfo.getAttributes().entrySet().stream()
+              .collect(
+                  Collectors.toMap(
+                      Map.Entry::getKey, e -> e.getValue() == null ? "" : e.getValue().toString()));
+      userAttrMapping.put(userInfo.getName(), attributeMap);
+      store.setUserAttrMapping(userAttrMapping);
+      if (rangerAccessContext.getAdditionalInfo() == null) {
+        rangerAccessContext.setAdditionalInfo(new HashMap<>());
+      }
+      Map<String, Object> reqContext = rangerAccessContext.getAdditionalInfo();
+      RangerAccessRequestUtil.setRequestUserStoreInContext(reqContext, store);
+    }
   }
 }

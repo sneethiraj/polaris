@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@TestProfile(RangerTestProfiles.EmbeddedPolicy.class)
+@TestProfile(RangerTestProfiles.EmbeddedPolicyWithUserAttrib.class)
 public class RangerABACWithUserAttrIT extends RangerIntegrationTestBase {
 
   @Test

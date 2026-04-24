@@ -212,6 +212,7 @@ public class RangerPolarisAuthorizer implements PolarisAuthorizer {
     RangerAccessContext context = new RangerAccessContext(SERVICE_TYPE, serviceName);
     RangerMultiAuthzRequest authzRequest =
         new RangerMultiAuthzRequest(userInfo, accessInfos, context);
+    RangerUtils.setUserAttribsInRequestContext(userInfo, context);
     RangerMultiAuthzResult authzResult = authorizer.authorize(authzRequest);
     boolean isAllowed = RangerAuthzResult.AccessDecision.ALLOW.equals(authzResult.getDecision());
 

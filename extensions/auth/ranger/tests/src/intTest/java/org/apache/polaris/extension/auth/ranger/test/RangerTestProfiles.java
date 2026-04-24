@@ -48,4 +48,25 @@ public final class RangerTestProfiles {
       return config;
     }
   }
+
+  public static class EmbeddedPolicyWithUserAttrib implements QuarkusTestProfile {
+    @Override
+    public Map<String, String> getConfigOverrides() {
+      Map<String, String> config = new HashMap<>();
+      config.put("polaris.authorization.type", "ranger");
+      config.put("polaris.authorization.ranger.service-name", "dev_polaris");
+      config.put(
+          "polaris.authorization.ranger.authz.default.policy.source.impl",
+          "org.apache.ranger.admin.client.EmbeddedResourcePolicySource");
+      config.put(
+          "polaris.authorization.ranger.authz.default.enable.implicit.userstore.enricher", "false");
+      config.put(
+          "polaris.authorization.ranger.authz.default.policy.source.embedded_resource.path",
+          "/authz_it_tests");
+      config.put("polaris.features.\"SUPPORTED_CATALOG_STORAGE_TYPES\"", "[\"FILE\"]");
+      config.put("polaris.features.\"ALLOW_INSECURE_STORAGE_TYPES\"", "true");
+      config.put("polaris.readiness.ignore-severe-issues", "true");
+      return config;
+    }
+  }
 }
