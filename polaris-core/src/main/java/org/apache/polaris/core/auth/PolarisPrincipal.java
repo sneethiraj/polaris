@@ -42,8 +42,8 @@ public interface PolarisPrincipal extends Principal {
    * @param roles the set of roles associated with the principal
    */
   static PolarisPrincipal of(PrincipalEntity principalEntity, Set<String> roles) {
-    Map<String, String> allProperties = new HashMap<>(principalEntity.getInternalPropertiesAsMap());
-    allProperties.putAll(principalEntity.getPropertiesAsMap());
+    Map<String, String> allProperties = new HashMap<>(principalEntity.getPropertiesAsMap());
+    allProperties.putAll(principalEntity.getInternalPropertiesAsMap());
     return of(principalEntity.getName(), allProperties, roles, Optional.empty());
   }
 
@@ -60,8 +60,8 @@ public interface PolarisPrincipal extends Principal {
    */
   static PolarisPrincipal of(
       PrincipalEntity principalEntity, Set<String> roles, Optional<String> token) {
-    Map<String, String> allProperties = new HashMap<>(principalEntity.getInternalPropertiesAsMap());
-    allProperties.putAll(principalEntity.getPropertiesAsMap());
+    Map<String, String> allProperties = new HashMap<>(principalEntity.getPropertiesAsMap());
+    allProperties.putAll(principalEntity.getInternalPropertiesAsMap());
     return of(principalEntity.getName(), allProperties, roles, token);
   }
 
